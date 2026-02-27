@@ -1,5 +1,5 @@
 <script setup lang="ts">
-definePageMeta({ layout: 'default', middleware: 'guest' })
+definePageMeta({ layout: 'default', middleware: 'role-guard', requiredRole: 'guest' })
 
 const client = useSupabaseClient()
 const toast = useToast()

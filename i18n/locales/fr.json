@@ -22,5 +22,20 @@
     "rememberPassword": "Vous vous souvenez de votre mot de passe ?",
     "resetEmailSent": "Vérifiez votre e-mail pour le lien de réinitialisation",
     "confirmEmail": "Vérifiez votre e-mail pour confirmer votre compte"
+  },
+  "home": {
+    "title": "Bienvenue sur GameDB",
+    "description": "Base de données de jeu communautaire — explorez et contribuez aux tourrelles, puces, armatures et plus encore."
+  },
+  "column": {
+    "name": "Nom",
+    "type": "Type",
+    "description": "Description"
+  },
+  "db": {
+    "turrets": {
+      "title": "Tourrelles",
+      "all": "Toutes"
+    }
   }
 }

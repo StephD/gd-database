@@ -22,5 +22,20 @@
     "rememberPassword": "Remember your password?",
     "resetEmailSent": "Check your email for the reset link",
     "confirmEmail": "Check your email to confirm your account"
+  },
+  "home": {
+    "title": "Welcome to GameDB",
+    "description": "Community game database — browse and contribute to turrets, chips, frames and more."
+  },
+  "column": {
+    "name": "Name",
+    "type": "Type",
+    "description": "Description"
+  },
+  "db": {
+    "turrets": {
+      "title": "Turrets",
+      "all": "All"
+    }
   }
 }

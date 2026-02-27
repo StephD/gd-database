@@ -1,42 +1,29 @@
 <script setup lang="ts">
-import type { Turret, TurretType } from '~/types'
+import type { TurretType } from '~/types'
+import { getTurretTypeClasses, getTurretTypeBorderClass } from '~/utils/colors'
 
 definePageMeta({ layout: 'default' })
 
-const client = useSupabaseClient()
-
-const { data: turrets } = await useAsyncData('turrets-page',
-  () => client.from('turrets').select('*').is('parent_id', null).order('name').then(r => r.data ?? [])
-)
-
-const { data: turretTypes } = await useAsyncData('turret-types',
-  () => client.from('turret_types').select('*').order('name').then(r => r.data ?? [])
-)
-
-const selectedType = ref<string | null>(null)
-
-const filteredTurrets = computed<Turret[]>(() => {
-  const all = (turrets.value ?? []) as Turret[]
-  if (!selectedType.value) return all
-  return all.filter(t => t.type === selectedType.value)
-})
-
 const columns = [
-  { accessorKey: 'name', header: 'Name' },
-  { accessorKey: 'type', header: 'Type' },
-  { accessorKey: 'description', header: 'Description' },
+  { accessorKey: 'name', header: $t('column.name') },
+  { accessorKey: 'type', header: $t('column.type') },
+  { accessorKey: 'description', header: $t('column.description') },
 ]
 
-function toggleType(name: string) {
-  selectedType.value = selectedType.value === name ? null : name
-}
+const {
+  turrets,
+  turretTypes,
+  selectedType,
+  filteredTurrets,
+  toggleType,
+} = useTurrets()
 </script>
 
 <template>
   <div class="max-w-7xl mx-auto px-4 py-6">
     <div class="flex items-center justify-between mb-6">
       <h1 class="text-2xl font-bold">
-        Turrets
+        {{$t('db.turrets.title')}}
       </h1>
       <span class="text-sm text-muted">
         {{ filteredTurrets.length }} result{{ filteredTurrets.length !== 1 ? 's' : '' }}
@@ -57,17 +44,17 @@ function toggleType(name: string) {
         All
       </button>
       <button
-        v-for="typeObj in (turretTypes as TurretType[])"
-        :key="typeObj.id"
+        v-for="turretType in (turretTypes as TurretType[])"
+        :key="turretType.id"
         :class="[
           'px-3 py-1.5 rounded-full text-xs font-semibold transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary',
-          selectedType === typeObj.name
-            ? getTurretTypeClasses(typeObj.name)
+          selectedType === turretType.name
+            ? getTurretTypeClasses(turretType.name) 
             : 'bg-zinc-100 text-zinc-600 dark:bg-zinc-800 dark:text-zinc-300 hover:bg-zinc-200 dark:hover:bg-zinc-700',
         ]"
-        @click="toggleType(typeObj.name)"
+        @click="toggleType(turretType.name)"
       >
-        {{ typeObj.name }}
+        {{ turretType.name }}
       </button>
     </div>
 
@@ -103,7 +90,7 @@ function toggleType(name: string) {
 
       <template #type-cell="{ row }">
         <span
-          v-if="row.original.type"
+          v-if="turrets.find(t => t.id === row.original.id)?.type"
           :class="['inline-flex px-2.5 py-0.5 rounded-full text-xs font-semibold', getTurretTypeClasses(row.original.type)]"
         >
           {{ row.original.type }}

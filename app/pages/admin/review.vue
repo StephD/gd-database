@@ -3,7 +3,8 @@ import type { EntityTable } from '~/types'
 
 definePageMeta({
   layout: 'default',
-  middleware: 'admin'
+  middleware: 'role-guard',
+  requiredRole: 'admin'
 })
 
 const { authReady } = useProfile()
@@ -27,7 +28,7 @@ async function loadAll() {
   for (const table of entityTables) {
     const revisions = await fetchPendingRevisions(table)
     for (const rev of revisions) {
-      const live = await fetchLiveRecord(table, rev.parent_id)
+      const live = await fetchLiveRecord(table, (rev as any)  .parent_id as string)
       all.push({ tableName: table, revision: rev, liveRecord: live })
     }
   }

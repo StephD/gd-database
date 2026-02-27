@@ -13,10 +13,10 @@ const links = [
   <div class="max-w-3xl mx-auto px-4 py-12 sm:py-16">
     <div class="text-center mb-12">
       <h1 class="text-3xl sm:text-4xl font-bold tracking-tight mb-3">
-        Welcome to GameDB
+        {{ $t('home.title') }}
       </h1>
       <p class="text-muted text-lg">
-        Community game database — browse and contribute to turrets, chips, frames and more.
+        {{ $t('home.description') }}
       </p>
     </div>
 
