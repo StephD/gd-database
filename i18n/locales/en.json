@@ -1,0 +1,26 @@
+{
+  "nav": {
+    "turrets": "Turrets",
+    "chips": "Chips",
+    "editReview": "Edit Review",
+    "others": "Others",
+    "frame": "Frame",
+    "guardian": "Guardian",
+    "login": "Login",
+    "logout": "Logout"
+  },
+  "login": {
+    "title": "Log in",
+    "signupTitle": "Sign up",
+    "resetTitle": "Reset password",
+    "email": "Email",
+    "password": "Password",
+    "passwordPlaceholder": "••••••••",
+    "forgotPassword": "Forgot password?",
+    "noAccount": "No account?",
+    "alreadyHaveAccount": "Already have an account?",
+    "rememberPassword": "Remember your password?",
+    "resetEmailSent": "Check your email for the reset link",
+    "confirmEmail": "Check your email to confirm your account"
+  }
+}

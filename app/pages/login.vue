@@ -10,9 +10,9 @@ const password = ref('admin321')
 const submitting = ref(false)
 
 const title = computed(() => {
-  if (mode.value === 'login') return 'Log in'
-  if (mode.value === 'signup') return 'Sign up'
-  return 'Reset password'
+  if (mode.value === 'login') return $t('login.title')
+  if (mode.value === 'signup') return $t('login.signupTitle')
+  return $t('login.resetTitle')
 })
 
 async function handleSubmit() {
@@ -27,7 +27,7 @@ async function handleSubmit() {
       toast.add({ title: error.message, color: 'error' })
       return
     }
-    toast.add({ title: 'Check your email for the reset link', color: 'success' })
+    toast.add({ title: $t('login.resetEmailSent'), color: 'success' })
     mode.value = 'login'
     return
   }
@@ -44,7 +44,7 @@ async function handleSubmit() {
   }
 
   if (mode.value === 'signup') {
-    toast.add({ title: 'Check your email to confirm your account', color: 'success' })
+    toast.add({ title: $t('login.confirmEmail'), color: 'success' })
     return
   }
 
@@ -62,21 +62,21 @@ async function handleSubmit() {
       </template>
 
       <form class="space-y-4" @submit.prevent="handleSubmit">
-        <UFormField label="Email">
+        <UFormField :label="$t('login.email')">
           <UInput
             v-model="email"
             type="email"
-            placeholder="you@example.com"
+            :placeholder="$t('login.emailPlaceholder')"
             required
             class="w-full"
           />
         </UFormField>
 
-        <UFormField v-if="mode !== 'reset'" label="Password">
+        <UFormField v-if="mode !== 'reset'" :label="$t('login.password')">
           <UInput
             v-model="password"
             type="password"
-            placeholder="••••••••"
+            :placeholder="$t('login.passwordPlaceholder')"
             required
             class="w-full"
           />
@@ -90,23 +90,23 @@ async function handleSubmit() {
         />
 
         <p v-if="mode === 'login'" class="text-sm text-center">
-          <UButton variant="link" size="sm" label="Forgot password?" @click="mode = 'reset'" />
+          <UButton variant="link" size="sm" :label="$t('login.forgotPassword')" @click="mode = 'reset'" />
         </p>
       </form>
 
       <template #footer>
         <p class="text-sm text-center text-muted">
           <template v-if="mode === 'login'">
-            No account?
-            <UButton variant="link" size="sm" label="Sign up" @click="mode = 'signup'" />
+            {{ $t('login.noAccount') }}
+            <UButton variant="link" size="sm" :label="$t('login.signupTitle')" @click="mode = 'signup'" />
           </template>
           <template v-else-if="mode === 'signup'">
-            Already have an account?
-            <UButton variant="link" size="sm" label="Log in" @click="mode = 'login'" />
+            {{ $t('login.alreadyHaveAccount') }}
+            <UButton variant="link" size="sm" :label="$t('login.title')" @click="mode = 'login'" />
           </template>
           <template v-else>
-            Remember your password?
-            <UButton variant="link" size="sm" label="Log in" @click="mode = 'login'" />
+            {{ $t('login.rememberPassword') }}
+            <UButton variant="link" size="sm" :label="$t('login.title')" @click="mode = 'login'" />
           </template>
         </p>
       </template>

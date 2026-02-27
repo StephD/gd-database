@@ -116,6 +116,13 @@ export interface Ranger {
   updated_at: string | null
 }
 
+export interface TurretType {
+  id: string
+  name: string
+}
+
+export type TurretTypeName = 'Physical' | 'Energy' | 'Electric' | 'Fire' | 'Force-field'
+
 export type EntityTable = 'turrets' | 'chips' | 'frames' | 'guardians' | 'rangers'
 export type OthersSubtype = 'frames' | 'guardians' | 'rangers'
 export type EntityRow = Turret | Chip | Frame | Guardian | Ranger

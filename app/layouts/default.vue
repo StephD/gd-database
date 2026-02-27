@@ -11,23 +11,23 @@ const roleBgClass = computed(() => {
 
 const navLinks = computed(() => {
   const links = [
-    { label: 'Turrets', to: '/db/turrets', icon: 'i-lucide-crosshair' },
-    { label: 'Chips', to: '/db/chips', icon: 'i-lucide-cpu' }
+    { label: $t('nav.turrets'), to: '/db/turrets', icon: 'i-lucide-crosshair' },
+    { label: $t('nav.chips'), to: '/db/chips', icon: 'i-lucide-cpu' }
   ]
   if (authReady.value && role.value === 'admin') {
-    links.push({ label: 'Edit Review', to: '/admin/review', icon: 'i-lucide-clipboard-check' })
+    links.push({ label: $t('nav.editReview'), to: '/admin/review', icon: 'i-lucide-clipboard-check' })
   }
   return links
 })
 
-const othersMenuItems = [[
-  { label: 'Frame', icon: 'i-lucide-shield', to: '/db/others/frames' },
-  { label: 'Guardian', icon: 'i-lucide-swords', to: '/db/others/guardians' }
-]]
+const othersMenuItems = computed(() => [[
+  { label: $t('nav.frame'), icon: 'i-lucide-shield', to: '/db/others/frames' },
+  { label: $t('nav.guardian'), icon: 'i-lucide-swords', to: '/db/others/guardians' }
+]])
 
-const userMenuItems = [[
-  { label: 'Logout', icon: 'i-lucide-log-out', onSelect: () => logout() }
-]]
+const userMenuItems = computed(() => [[
+  { label: $t('nav.logout'), icon: 'i-lucide-log-out', onSelect: () => logout() }
+]])
 </script>
 
 <template>
@@ -52,7 +52,7 @@ const userMenuItems = [[
             />
             <UDropdownMenu :items="othersMenuItems">
               <UButton
-                label="Others"
+                :label="$t('nav.others')"
                 icon="i-lucide-shapes"
                 variant="ghost"
                 color="neutral"
@@ -64,7 +64,6 @@ const userMenuItems = [[
         </div>
 
         <div class="flex items-center gap-2">
-          <UColorModeButton />
 
           <template v-if="role !== 'guest' && user">
             <UDropdownMenu :items="userMenuItems">
@@ -81,12 +80,14 @@ const userMenuItems = [[
           <template v-else-if="authReady">
             <UButton
               to="/login"
-              label="Login"
+              :label="$t('nav.login')"
               variant="soft"
               size="sm"
               icon="i-lucide-log-in"
             />
           </template>
+          <LanguageSwitcher />
+          <UColorModeButton />
         </div>
       </div>
 
@@ -101,9 +102,9 @@ const userMenuItems = [[
           color="neutral"
           size="xs"
         />
-        <UButton to="/db/others/frames" label="Frame" icon="i-lucide-shield" variant="ghost" color="neutral" size="xs" />
-        <UButton to="/db/others/guardians" label="Guardian" icon="i-lucide-swords" variant="ghost" color="neutral" size="xs" />
-        <UButton v-if="authReady && role === 'admin'" to="/admin/review" label="Edit Review" icon="i-lucide-clipboard-check" variant="ghost" color="neutral" size="xs" />
+        <UButton :to="'/db/others/frames'" :label="$t('nav.frame')" icon="i-lucide-shield" variant="ghost" color="neutral" size="xs" />
+        <UButton :to="'/db/others/guardians'" :label="$t('nav.guardian')" icon="i-lucide-swords" variant="ghost" color="neutral" size="xs" />
+        <UButton v-if="authReady && role === 'admin'" to="/admin/review" :label="$t('nav.editReview')" icon="i-lucide-clipboard-check" variant="ghost" color="neutral" size="xs" />
       </nav>
     </header>
 

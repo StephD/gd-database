@@ -3,8 +3,17 @@ export default defineNuxtConfig({
     '@nuxt/eslint',
     '@nuxt/ui',
     '@nuxtjs/supabase',
-    '@nuxt/image'
+    '@nuxt/image',
+    '@nuxtjs/i18n'
   ],
+
+  i18n: {
+    defaultLocale: 'en',
+    locales: [
+      { code: 'en', language: 'en-US', file: 'en.json', name: 'English' },
+      { code: 'fr', language: 'fr-FR', file: 'fr.json', name: 'Français' }
+    ]
+  },
 
   devtools: { enabled: true },
 

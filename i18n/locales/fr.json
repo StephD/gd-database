@@ -1,0 +1,26 @@
+{
+  "nav": {
+    "turrets": "Tourelles",
+    "chips": "Puces",
+    "editReview": "Révision",
+    "others": "Autres",
+    "frame": "Armature",
+    "guardian": "Gardien",
+    "login": "Connexion",
+    "logout": "Déconnexion"
+  },
+  "login": {
+    "title": "Se connecter",
+    "signupTitle": "S'inscrire",
+    "resetTitle": "Réinitialiser le mot de passe",
+    "email": "Email",
+    "password": "Mot de passe",
+    "passwordPlaceholder": "••••••••",
+    "forgotPassword": "Mot de passe oublié ?",
+    "noAccount": "Pas de compte ?",
+    "alreadyHaveAccount": "Déjà un compte ?",
+    "rememberPassword": "Vous vous souvenez de votre mot de passe ?",
+    "resetEmailSent": "Vérifiez votre e-mail pour le lien de réinitialisation",
+    "confirmEmail": "Vérifiez votre e-mail pour confirmer votre compte"
+  }
+}
