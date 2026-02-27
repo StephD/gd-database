@@ -37,5 +37,8 @@
       "title": "Turrets",
       "all": "All"
     }
+  },
+  "common": {
+    "loading": "Loading..."
   }
 }

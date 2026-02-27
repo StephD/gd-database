@@ -16,6 +16,7 @@ const {
   selectedType,
   filteredTurrets,
   toggleType,
+  isLoading,
 } = useTurrets()
 </script>
 
@@ -58,22 +59,80 @@ const {
       </button>
     </div>
 
-    <!-- Desktop table -->
-    <UTable
-      v-if="filteredTurrets.length"
-      :data="filteredTurrets"
-      :columns="columns"
-      class="hidden md:block"
+    <!-- Loading state -->
+    <div
+      v-if="isLoading"
+      class="flex items-center justify-center py-20 text-muted gap-3"
     >
-      <template #name-cell="{ row }">
-        <div class="flex items-center gap-3 py-1">
-          <div class="size-10 rounded-lg bg-elevated flex items-center justify-center overflow-hidden shrink-0">
+      <UIcon name="i-lucide-loader-2" class="size-5 animate-spin" />
+      <span>{{$t('common.loading') ?? 'Loading turrets...'}}</span>
+    </div>
+
+    <template v-else>
+      <!-- Desktop table -->
+      <UTable
+        v-if="filteredTurrets.length"
+        :data="filteredTurrets"
+        :columns="columns"
+        class="hidden md:block"
+      >
+        <template #name-cell="{ row }">
+          <div class="flex items-center gap-3 py-1">
+            <div class="size-10 rounded-lg bg-elevated flex items-center justify-center overflow-hidden shrink-0">
+              <NuxtImg
+                v-if="row.original.image_url"
+                :src="row.original.image_url"
+                :alt="row.original.name"
+                width="40"
+                height="40"
+                format="webp"
+                quality="80"
+                class="w-full h-full object-cover"
+              />
+              <UIcon
+                v-else
+                name="i-lucide-crosshair"
+                class="size-5 text-muted"
+              />
+            </div>
+            <span class="font-semibold text-sm">{{ row.original.name }}</span>
+          </div>
+        </template>
+
+        <template #type-cell="{ row }">
+          <span
+            v-if="turrets.find(t => t.id === row.original.id)?.type"
+            :class="['inline-flex px-2.5 py-0.5 rounded-full text-xs font-semibold', getTurretTypeClasses(row.original.type)]"
+          >
+            {{ row.original.type }}
+          </span>
+          <span v-else class="text-muted text-xs">—</span>
+        </template>
+
+        <template #description-cell="{ row }">
+          <p class="text-sm text-muted max-w-md line-clamp-2">
+            {{ row.original.description || '—' }}
+          </p>
+        </template>
+      </UTable>
+
+      <!-- Mobile cards -->
+      <div
+        v-if="filteredTurrets.length"
+        class="md:hidden grid grid-cols-1 gap-3 sm:grid-cols-2"
+      >
+        <div
+          v-for="turret in filteredTurrets"
+          :key="turret.id"
+          :class="['rounded-xl border border-default bg-default p-4 flex gap-3 border-l-4', getTurretTypeBorderClass(turret.type)]"
+        >
+          <div class="size-14 rounded-lg bg-elevated flex items-center justify-center overflow-hidden shrink-0">
             <NuxtImg
-              v-if="row.original.image_url"
-              :src="row.original.image_url"
-              :alt="row.original.name"
-              width="40"
-              height="40"
+              v-if="turret.image_url"
+              :src="turret.image_url"
+              :alt="turret.name"
+              width="56"
+              height="56"
               format="webp"
               quality="80"
               class="w-full h-full object-cover"
@@ -81,81 +140,37 @@ const {
             <UIcon
               v-else
               name="i-lucide-crosshair"
-              class="size-5 text-muted"
+              class="size-6 text-muted"
             />
           </div>
-          <span class="font-semibold text-sm">{{ row.original.name }}</span>
-        </div>
-      </template>
 
-      <template #type-cell="{ row }">
-        <span
-          v-if="turrets.find(t => t.id === row.original.id)?.type"
-          :class="['inline-flex px-2.5 py-0.5 rounded-full text-xs font-semibold', getTurretTypeClasses(row.original.type)]"
-        >
-          {{ row.original.type }}
-        </span>
-        <span v-else class="text-muted text-xs">—</span>
-      </template>
-
-      <template #description-cell="{ row }">
-        <p class="text-sm text-muted max-w-md line-clamp-2">
-          {{ row.original.description || '—' }}
-        </p>
-      </template>
-    </UTable>
-
-    <!-- Mobile cards -->
-    <div class="md:hidden grid grid-cols-1 gap-3 sm:grid-cols-2">
-      <div
-        v-for="turret in filteredTurrets"
-        :key="turret.id"
-        :class="['rounded-xl border border-default bg-default p-4 flex gap-3 border-l-4', getTurretTypeBorderClass(turret.type)]"
-      >
-        <div class="size-14 rounded-lg bg-elevated flex items-center justify-center overflow-hidden shrink-0">
-          <NuxtImg
-            v-if="turret.image_url"
-            :src="turret.image_url"
-            :alt="turret.name"
-            width="56"
-            height="56"
-            format="webp"
-            quality="80"
-            class="w-full h-full object-cover"
-          />
-          <UIcon
-            v-else
-            name="i-lucide-crosshair"
-            class="size-6 text-muted"
-          />
-        </div>
-
-        <div class="flex-1 min-w-0">
-          <div class="flex items-start justify-between gap-2 mb-1.5">
-            <h3 class="font-semibold text-sm leading-tight">
-              {{ turret.name }}
-            </h3>
-            <span
-              v-if="turret.type"
-              :class="['inline-flex shrink-0 px-2 py-0.5 rounded-full text-xs font-semibold', getTurretTypeClasses(turret.type)]"
-            >
-              {{ turret.type }}
-            </span>
+          <div class="flex-1 min-w-0">
+            <div class="flex items-start justify-between gap-2 mb-1.5">
+              <h3 class="font-semibold text-sm leading-tight">
+                {{ turret.name }}
+              </h3>
+              <span
+                v-if="turret.type"
+                :class="['inline-flex shrink-0 px-2 py-0.5 rounded-full text-xs font-semibold', getTurretTypeClasses(turret.type)]"
+              >
+                {{ turret.type }}
+              </span>
+            </div>
+            <p class="text-xs text-muted line-clamp-3 leading-relaxed">
+              {{ turret.description || 'No description available.' }}
+            </p>
           </div>
-          <p class="text-xs text-muted line-clamp-3 leading-relaxed">
-            {{ turret.description || 'No description available.' }}
-          </p>
         </div>
       </div>
-    </div>
 
-    <!-- Empty state -->
-    <div
-      v-if="!filteredTurrets.length"
-      class="text-center text-muted py-20"
-    >
-      <UIcon name="i-lucide-crosshair" class="size-10 mx-auto mb-3 opacity-30" />
-      <p>No turrets found{{ selectedType ? ` for type "${selectedType}"` : '' }}.</p>
-    </div>
+      <!-- Empty state -->
+      <div
+        v-if="!filteredTurrets.length"
+        class="text-center text-muted py-20"
+      >
+        <UIcon name="i-lucide-crosshair" class="size-10 mx-auto mb-3 opacity-30" />
+        <p>No turrets found{{ selectedType ? ` for type "${selectedType}"` : '' }}.</p>
+      </div>
+    </template>
   </div>
 </template>
