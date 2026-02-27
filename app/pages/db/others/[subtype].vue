@@ -3,6 +3,8 @@ import type { EntityTable, OthersSubtype } from '~/types'
 
 definePageMeta({ layout: 'default' })
 
+const localePath = useLocalePath()
+
 const route = useRoute()
 const client = useSupabaseClient()
 const { fetchPendingIds } = useRevisions()
@@ -11,7 +13,7 @@ const allowedSubtypes: OthersSubtype[] = ['frames', 'guardians', 'rangers']
 const subtype = computed(() => route.params.subtype as string)
 
 if (!allowedSubtypes.includes(subtype.value as OthersSubtype)) {
-  await navigateTo('/db/others/frames', { replace: true })
+  await navigateTo(localePath('/db/others/frames'), { replace: true })
 }
 
 const tabs = allowedSubtypes.map(s => ({
@@ -57,10 +59,10 @@ const pageTitle = computed(() => {
       <UButton
         v-for="tab in tabs"
         :key="tab.to"
-        :to="tab.to"
+        :to="localePath(tab.to)"
         :label="tab.label"
-        :variant="tab.to === route.path ? 'solid' : 'ghost'"
-        :color="tab.to === route.path ? 'primary' : 'neutral'"
+        :variant="localePath(tab.to) === route.path ? 'solid' : 'ghost'"
+        :color="localePath(tab.to) === route.path ? 'primary' : 'neutral'"
         size="sm"
       />
     </div>

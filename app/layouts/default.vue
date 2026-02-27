@@ -1,5 +1,6 @@
 <script setup lang="ts">
 const { profile: user, role, logout, authReady } = useProfile()
+const localePath = useLocalePath()
 
 const displayName = computed(() => user.value?.email?.split('@')[0] ?? 'Account')
 
@@ -11,18 +12,18 @@ const roleBgClass = computed(() => {
 
 const navLinks = computed(() => {
   const links = [
-    { label: $t('nav.turrets'), to: '/db/turrets', icon: 'i-lucide-crosshair' },
-    { label: $t('nav.chips'), to: '/db/chips', icon: 'i-lucide-cpu' }
+    { label: $t('nav.turrets'), to: localePath('/db/turrets'), icon: 'i-lucide-crosshair' },
+    { label: $t('nav.chips'), to: localePath('/db/chips'), icon: 'i-lucide-cpu' }
   ]
   if (authReady.value && role.value === 'admin') {
-    links.push({ label: $t('nav.editReview'), to: '/admin/review', icon: 'i-lucide-clipboard-check' })
+    links.push({ label: $t('nav.editReview'), to: localePath('/admin/review'), icon: 'i-lucide-clipboard-check' })
   }
   return links
 })
 
 const othersMenuItems = computed(() => [[
-  { label: $t('nav.frame'), icon: 'i-lucide-shield', to: '/db/others/frames' },
-  { label: $t('nav.guardian'), icon: 'i-lucide-swords', to: '/db/others/guardians' }
+  { label: $t('nav.frame'), icon: 'i-lucide-shield', to: localePath('/db/others/frames') },
+  { label: $t('nav.guardian'), icon: 'i-lucide-swords', to: localePath('/db/others/guardians') }
 ]])
 
 const userMenuItems = computed(() => [[
@@ -102,9 +103,31 @@ const userMenuItems = computed(() => [[
           color="neutral"
           size="xs"
         />
-        <UButton :to="'/db/others/frames'" :label="$t('nav.frame')" icon="i-lucide-shield" variant="ghost" color="neutral" size="xs" />
-        <UButton :to="'/db/others/guardians'" :label="$t('nav.guardian')" icon="i-lucide-swords" variant="ghost" color="neutral" size="xs" />
-        <UButton v-if="authReady && role === 'admin'" to="/admin/review" :label="$t('nav.editReview')" icon="i-lucide-clipboard-check" variant="ghost" color="neutral" size="xs" />
+        <UButton
+          :to="localePath('/db/others/frames')"
+          :label="$t('nav.frame')"
+          icon="i-lucide-shield"
+          variant="ghost"
+          color="neutral"
+          size="xs"
+        />
+        <UButton
+          :to="localePath('/db/others/guardians')"
+          :label="$t('nav.guardian')"
+          icon="i-lucide-swords"
+          variant="ghost"
+          color="neutral"
+          size="xs"
+        />
+        <UButton
+          v-if="authReady && role === 'admin'"
+          :to="localePath('/admin/review')"
+          :label="$t('nav.editReview')"
+          icon="i-lucide-clipboard-check"
+          variant="ghost"
+          color="neutral"
+          size="xs"
+        />
       </nav>
     </header>
 

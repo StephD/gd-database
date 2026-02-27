@@ -1,7 +1,9 @@
 <script setup lang="ts">
 definePageMeta({ layout: 'default' })
 
-await navigateTo('/db/others/frames', { redirectCode: 302, replace: true })
+const localePath = useLocalePath()
+
+await navigateTo(localePath('/db/others/frames'), { redirectCode: 302, replace: true })
 </script>
 
 <template>

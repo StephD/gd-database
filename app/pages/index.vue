@@ -1,6 +1,8 @@
 <script setup lang="ts">
 definePageMeta({ layout: 'default' })
 
+const localePath = useLocalePath()
+
 const links = [
   { label: 'Turrets', to: '/db/turrets', icon: 'i-lucide-crosshair', description: 'Browse turret database' },
   { label: 'Chips', to: '/db/chips', icon: 'i-lucide-cpu', description: 'Browse chip database' },
@@ -24,7 +26,7 @@ const links = [
       <UButton
         v-for="link in links"
         :key="link.to"
-        :to="link.to"
+        :to="localePath(link.to)"
         variant="soft"
         size="xl"
         class="h-auto flex flex-col items-start gap-1 p-4 justify-start"

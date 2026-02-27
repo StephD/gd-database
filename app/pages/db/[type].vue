@@ -3,6 +3,8 @@ import type { EntityTable } from '~/types'
 
 definePageMeta({ layout: 'default' })
 
+const localePath = useLocalePath()
+
 const route = useRoute()
 const client = useSupabaseClient()
 const { fetchPendingIds } = useRevisions()
@@ -11,7 +13,7 @@ const allowedTypes: EntityTable[] = ['turrets', 'chips']
 const type = computed(() => route.params.type as string)
 
 if (!allowedTypes.includes(type.value as EntityTable)) {
-  await navigateTo('/db/turrets', { replace: true })
+  await navigateTo(localePath('/db/turrets'), { replace: true })
 }
 
 const { data: items, refresh } = await useAsyncData(
