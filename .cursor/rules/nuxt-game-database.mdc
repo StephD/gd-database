@@ -4,12 +4,33 @@ globs: "**/*.vue"
 alwaysApply: false
 ---
 
-# Nuxt 4 Game Database
+# General Behavior
+- Be concise. Minimize filler like "I'd be happy to help" or "Sure, here is the code."
+- If a solution is trivial, provide only the code block.
+- Explain *why* a specific refactor is better (performance, readability, or security).
+- If I provide an error, diagnose the root cause before suggesting a fix.
+- Ensure all code snippets are complete, lint-free, and ready to paste.
 
-## Stack
-- **Framework**: Nuxt 4 + Vue 3
-- **Backend**: Supabase
-- **UI**: Nuxt UI
+# Modern JavaScript Standards
+- Use ES6+ syntax exclusively (Optional chaining `?.`, Nullish coalescing `??`).
+- Use `async/await` for asynchronous logic; avoid `.then()`.
+- Use Arrow functions for callbacks; use `function` for top-level component logic.
+- Prefer object/array destructuring for props and data fetching.
+- Use template literals for all string concatenations.
+
+# Nuxt & Vue Ecosystem
+- Framework: Nuxt 4 (Composition API).
+- Style: NuxtUI.
+- Component Syntax: Always use `<script setup>`.
+- Auto-imports: Do NOT explicitly import 'ref', 'computed', 'watch', or Nuxt composables like 'useFetch' unless it's inside a non-auto-imported utility file.
+- Data Fetching: Use `useFetch` for SSR and `$fetch` for client-side event handlers.
+- State: Use `useState` for simple global state; use Pinia for complex stores.
+- Logic: Keep logic in `composables/` to keep components clean.
+
+# Formatting & Style
+- Use Tailwind CSS utility classes. Avoid scoped <style> blocks unless necessary.
+- Use PascalCase for Component files and camelCase for Composables/Utilities.
+- Follow DRY (Don't Repeat Yourself) and KISS (Keep It Simple, Stupid) principles.
 
 ## Mobile-First Logic
 - Design and build for mobile viewports first; enhance for larger screens
@@ -40,3 +61,6 @@ alwaysApply: false
 
 Datascheme
 see the doc.md for DB information
+
+## Supabase MCP
+- When using Supabase MCP tools (`apply_migration`, `execute_sql`, `list_tables`, etc.), use **project_id** from `.env`: `SUPABASE_PROJECT_ID` (e.g. `ozbdktxfiopniulmllkg`).

@@ -1,56 +1,115 @@
 <script setup lang="ts">
+import { h, resolveComponent } from 'vue'
 import type { EntityTable, OthersSubtype } from '~/types'
+import type { TableColumn } from '@nuxt/ui'
+import { getQualityBorderClass } from '~/utils/colors'
 
 definePageMeta({ layout: 'default' })
 
 const localePath = useLocalePath()
-
+const { t: $t } = useI18n()
 const route = useRoute()
-const client = useSupabaseClient()
-const { fetchPendingIds } = useRevisions()
+const { fetchBySubtype } = useOthers()
+const { turrets } = useTurrets()
 
-const allowedSubtypes: OthersSubtype[] = ['frames', 'guardians', 'rangers']
-const subtype = computed(() => route.params.subtype as string)
+const allowedSubtypes: OthersSubtype[] = ['frames', 'guardians', 'liveries']
+const subtype = computed(() => (route.params.subtype as string) || 'frames')
 
 if (!allowedSubtypes.includes(subtype.value as OthersSubtype)) {
   await navigateTo(localePath('/db/others/frames'), { replace: true })
 }
 
-const tabs = allowedSubtypes.map(s => ({
-  label: s.charAt(0).toUpperCase() + s.slice(1),
-  to: `/db/others/${s}`
-}))
+const tabs = [
+  { label: $t('nav.frame'), to: '/db/others/frames' },
+  { label: $t('nav.guardian'), to: '/db/others/guardians' },
+  { label: $t('nav.livery'), to: '/db/others/liveries' }
+]
 
-const { data: items, refresh } = await useAsyncData(
-  `items-${subtype.value}`,
-  () => client.from(subtype.value).select('*').is('parent_id', null).then(r => r.data ?? []),
+type OthersRow = Record<string, unknown>
+
+const { data: itemsData } = await useAsyncData(
+  `others-${subtype.value}`,
+  () => fetchBySubtype(subtype.value as OthersSubtype),
   { watch: [subtype] }
 )
 
-const pendingIds = ref(new Set<string>())
+const rawItems = computed(() => (itemsData.value ?? []) as unknown as OthersRow[])
 
-async function loadPendingIds() {
-  pendingIds.value = await fetchPendingIds(subtype.value as EntityTable)
-}
-await loadPendingIds()
+const showTurretFilter = computed(() => subtype.value === 'guardians' || subtype.value === 'liveries')
+const selectedTurretId = ref<string | null>(null)
 
-const selectedItem = ref<Record<string, any> | null>(null)
+const turretFilterOptions = computed(() => [
+  { label: 'All turrets', value: null },
+  ...turrets.value.map(t => ({ label: t.name, value: t.id }))
+])
+
+const items = computed(() => {
+  const list = rawItems.value
+  if (!showTurretFilter.value || !selectedTurretId.value) return list
+  return list.filter(row => row.turret_id === selectedTurretId.value)
+})
+
+const selectedItem = ref<Record<string, unknown> | null>(null)
 const sheetOpen = ref(false)
 
-function openSheet(item: Record<string, any>) {
+function openSheet(item: Record<string, unknown>) {
   selectedItem.value = item
   sheetOpen.value = true
 }
 
-async function onEdited() {
-  await refresh()
-  await loadPendingIds()
+const showTurretColumn = computed(() => subtype.value === 'guardians' || subtype.value === 'liveries')
+
+function turretDisplay(item: Record<string, unknown>) {
+  return (item.turret_name as string) ?? '—'
 }
 
 const pageTitle = computed(() => {
   const s = subtype.value
-  return s.charAt(0).toUpperCase() + s.slice(1)
+  if (s === 'liveries') return $t('nav.livery')
+  if (s === 'guardians') return $t('nav.guardian')
+  return $t('nav.frame')
 })
+
+const StarsBlockComponent = resolveComponent('StarsBlock')
+
+const tableColumns = computed<TableColumn<OthersRow>[]>(() => {
+  const cols: TableColumn<OthersRow>[] = [
+    {
+      accessorKey: 'name',
+      header: 'Name',
+      cell: ({ row }) => row.original.name ?? '—',
+      meta: { class: { th: 'w-[180px]', td: 'w-[180px] font-medium' } }
+    },
+    {
+      accessorKey: 'description',
+      header: 'Description',
+      cell: ({ row }) => row.original.description ?? '—',
+      meta: { class: { th: 'max-w-[220px]', td: 'max-w-[220px] text-muted break-words whitespace-normal' } }
+    }
+  ]
+  if (showTurretColumn.value) {
+    cols.push({
+      accessorKey: 'turret_name',
+      header: 'Turret',
+      cell: ({ row }) => turretDisplay(row.original),
+      meta: { class: { th: 'w-[140px]', td: 'w-[140px] text-muted' } }
+    })
+  }
+  cols.push({
+    accessorKey: 'stars',
+    header: 'Stars',
+    cell: ({ row }) => h(StarsBlockComponent, { stars: (row.original.stars ?? null) as any }),
+    meta: { class: { th: 'min-w-[320px]', td: 'min-w-[320px]' } }
+  })
+  return cols
+})
+
+const tableMeta = computed(() => ({
+  class: {
+    tr: (row: { original: OthersRow }) =>
+      `border-l-4 ${getQualityBorderClass(row.original.quality as string)} cursor-pointer hover:bg-muted/30`
+  }
+}))
 </script>
 
 <template>
@@ -71,15 +130,41 @@ const pageTitle = computed(() => {
       {{ pageTitle }}
     </h1>
 
-    <div v-if="items?.length" class="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 lg:grid-cols-6 gap-3">
-      <ItemCard
-        v-for="item in items"
-        :key="item.id"
-        :item="item"
-        :has-pending="pendingIds.has(item.id)"
-        @click="openSheet(item)"
+    <div v-if="showTurretFilter" class="mb-4">
+      <USelectMenu
+        v-model="selectedTurretId"
+        value-key="value"
+        :items="turretFilterOptions"
+        placeholder="All turrets"
+        class="max-w-xs"
       />
     </div>
+
+    <template v-if="items?.length">
+      <!-- Desktop: table for all -->
+      <div class="hidden md:block overflow-x-auto">
+        <UTable
+          :data="items"
+          :columns="tableColumns"
+          :meta="tableMeta"
+          empty="No rows."
+          @select="(e: Event, row: { original: OthersRow }) => openSheet(row.original)"
+        />
+      </div>
+
+      <!-- Mobile: cards -->
+      <div class="grid grid-cols-2 gap-4 md:hidden">
+        <OthersCard
+          v-for="item in items"
+          :key="String(item.id)"
+          :item="item"
+          :show-turret="showTurretColumn"
+          :turret-display="turretDisplay"
+          @click="openSheet(item)"
+        />
+      </div>
+    </template>
+
     <div v-else class="text-center text-muted py-20">
       No {{ subtype }} found.
     </div>
@@ -88,8 +173,8 @@ const pageTitle = computed(() => {
       v-model:open="sheetOpen"
       :item="selectedItem"
       :table-name="(subtype as EntityTable)"
-      :has-pending="!!(selectedItem && pendingIds.has(selectedItem.id))"
-      @edited="onEdited"
+      :has-pending="false"
+      :read-only="true"
     />
   </div>
 </template>

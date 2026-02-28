@@ -55,42 +55,36 @@ export interface Chip {
 
 export interface Frame {
   id: string
-  name: string
+  name: string | null
   description: string | null
-  image_url: string | null
-  hp_star1: number | null
-  hp_star2: number | null
-  hp_star3: number | null
-  hp_star4: number | null
-  hp_star5: number | null
-  def_star1: number | null
-  def_star2: number | null
-  def_star3: number | null
-  def_star4: number | null
-  def_star5: number | null
-  parent_id: string | null
-  submitted_by: string | null
+  quality: string | null
+  stars: StarLevel[] | null
   created_at: string
   updated_at: string | null
 }
 
+/** One star level: object with arbitrary key → string value (e.g. "CRIT DMG": "60%") */
+export type StarLevel = Record<string, string> | null
+
 export interface Guardian {
   id: string
-  name: string
+  turret_id: string
+  name: string | null
   description: string | null
-  image_url: string | null
-  hp_star1: number | null
-  hp_star2: number | null
-  hp_star3: number | null
-  hp_star4: number | null
-  hp_star5: number | null
-  def_star1: number | null
-  def_star2: number | null
-  def_star3: number | null
-  def_star4: number | null
-  def_star5: number | null
-  parent_id: string | null
-  submitted_by: string | null
+  quality: string | null
+  stars: StarLevel[] | null
+  created_at: string
+  updated_at: string | null
+}
+
+export interface Livery {
+  id: string
+  turret_id: string
+  turret_name?: string
+  name: string | null
+  description: string | null
+  quality: string | null
+  stars: StarLevel[] | null
   created_at: string
   updated_at: string | null
 }
@@ -123,6 +117,6 @@ export interface TurretType {
 
 export type TurretTypeName = 'Physical' | 'Energy' | 'Electric' | 'Fire' | 'Force-field'
 
-export type EntityTable = 'turrets' | 'chips' | 'frames' | 'guardians' | 'rangers'
-export type OthersSubtype = 'frames' | 'guardians' | 'rangers'
-export type EntityRow = Turret | Chip | Frame | Guardian | Ranger
+export type EntityTable = 'turrets' | 'chips' | 'frames' | 'guardians' | 'liveries' | 'rangers'
+export type OthersSubtype = 'frames' | 'guardians' | 'liveries'
+export type EntityRow = Turret | Chip | Frame | Guardian | Livery | Ranger

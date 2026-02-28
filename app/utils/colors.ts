@@ -65,8 +65,30 @@ export const CARD_TIER_CLASSES: Record<string, string> = {
   "T3": 'text-black',
 }
 
+// --- Quality (Frames / Guardians / Liveries) ---
+// Reuses chip rarity palette for consistency
+export const QUALITY_CLASSES: Record<string, string> = {
+  "Common": 'bg-zinc-300 text-zinc-800 dark:bg-zinc-700 dark:text-zinc-200',
+  "Fine": 'bg-green-400 text-green-900 dark:bg-green-800 dark:text-green-100',
+  "Rare": 'bg-blue-400 text-blue-900 dark:bg-blue-800 dark:text-blue-100',
+  "Epic": 'bg-purple-400 text-purple-900 dark:bg-purple-800 dark:text-purple-100',
+  "Legendary": 'bg-orange-400 text-orange-900 dark:bg-orange-800 dark:text-orange-100',
+  "Supreme": 'bg-red-400 text-red-900 dark:bg-red-800 dark:text-red-100',
+  "Ultimate": 'bg-gradient-to-r from-red-400 via-green-400 to-blue-400 text-white',
+  "Other": 'bg-gray-200 text-gray-800 dark:bg-gray-900/50 dark:text-gray-300',
+}
 
-// --- Helpers ---
+/** Left border for row/card overlay by quality */
+export const QUALITY_BORDER: Record<string, string> = {
+  "Common": 'border-l-zinc-400',
+  "Fine": 'border-l-green-500',
+  "Rare": 'border-l-blue-500',
+  "Epic": 'border-l-purple-500',
+  "Legendary": 'border-l-orange-500',
+  "Supreme": 'border-l-red-500',
+  "Ultimate": 'border-l-amber-400',
+  "Other": 'border-l-gray-400',
+}
 
 const DEFAULT_BADGE = 'bg-zinc-200 text-zinc-700 dark:bg-zinc-800 dark:text-zinc-300'
 const DEFAULT_BORDER = 'border-l-zinc-300 dark:border-l-zinc-600'
@@ -84,6 +106,16 @@ export function getTurretTypeBorderClass(type: string | null | undefined): strin
 export function getChipRarityClasses(rarity: string | null | undefined): string {
   if (!rarity) return DEFAULT_BADGE
   return CHIP_RARITY_CLASSES[rarity] ?? DEFAULT_BADGE
+}
+
+export function getQualityClasses(quality: string | null | undefined): string {
+  if (!quality) return DEFAULT_BADGE
+  return QUALITY_CLASSES[quality] ?? DEFAULT_BADGE
+}
+
+export function getQualityBorderClass(quality: string | null | undefined): string {
+  if (!quality) return DEFAULT_BORDER
+  return QUALITY_BORDER[quality] ?? DEFAULT_BORDER
 }
 
 export function getGearTypeClasses(gearType: string | null | undefined): string {

@@ -23,7 +23,8 @@ const navLinks = computed(() => {
 
 const othersMenuItems = computed(() => [[
   { label: $t('nav.frame'), icon: 'i-lucide-shield', to: localePath('/db/others/frames') },
-  { label: $t('nav.guardian'), icon: 'i-lucide-swords', to: localePath('/db/others/guardians') }
+  { label: $t('nav.guardian'), icon: 'i-lucide-swords', to: localePath('/db/others/guardians') },
+  { label: $t('nav.livery'), icon: 'i-lucide-palette', to: localePath('/db/others/liveries') }
 ]])
 
 const userMenuItems = computed(() => [[
@@ -115,6 +116,14 @@ const userMenuItems = computed(() => [[
           :to="localePath('/db/others/guardians')"
           :label="$t('nav.guardian')"
           icon="i-lucide-swords"
+          variant="ghost"
+          color="neutral"
+          size="xs"
+        />
+        <UButton
+          :to="localePath('/db/others/liveries')"
+          :label="$t('nav.livery')"
+          icon="i-lucide-palette"
           variant="ghost"
           color="neutral"
           size="xs"
