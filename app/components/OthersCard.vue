@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { getQualityBorderClass } from '~/utils/colors'
+import { resolveDescriptionWithSkill } from '~/utils/stars'
 
 defineProps<{
   item: Record<string, unknown>
@@ -27,11 +28,11 @@ defineEmits<{
     </template>
 
     <p v-if="item.description" class="text-sm text-muted break-words whitespace-normal mb-3">
-      {{ item.description }}
+      {{ resolveDescriptionWithSkill(item.description as string, (item.stars ?? null) as any) }}
     </p>
     <p v-if="showTurret" class="text-xs text-muted mb-2">
       {{ turretDisplay(item) }}
     </p>
-    <StarsBlock :stars="(item.stars as any) ?? null" />
+    <StarsTable :stars="(item.stars as any) ?? null" />
   </UCard>
 </template>

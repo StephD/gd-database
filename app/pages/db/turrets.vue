@@ -18,6 +18,8 @@ const {
   toggleType,
   isLoading,
 } = useTurrets()
+
+const loadingText = computed(() => $t('common.loading') ?? 'Loading…')
 </script>
 
 <template>
@@ -65,7 +67,7 @@ const {
       class="flex items-center justify-center py-20 text-muted gap-3"
     >
       <UIcon name="i-lucide-loader-2" class="size-5 animate-spin" />
-      <span>{{$t('common.loading') ?? 'Loading turrets...'}}</span>
+      <span>{{ loadingText }}</span>
     </div>
 
     <template v-else>

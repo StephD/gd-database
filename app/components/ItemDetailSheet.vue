@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import type { EntityTable } from '~/types'
+import { resolveDescriptionWithSkill } from '~/utils/stars'
 
 const props = withDefaults(
   defineProps<{
@@ -105,7 +106,7 @@ const showEdit = computed(
               {{ item.name ?? '—' }}
             </h2>
             <p v-if="item.description" class="text-sm text-muted mt-1">
-              {{ item.description }}
+              {{ resolveDescriptionWithSkill(item.description as string, (item.stars ?? null) as any) }}
             </p>
             <div v-if="item.quality || item.turret_name" class="flex flex-wrap gap-2 mt-2">
               <UBadge v-if="item.quality" size="xs" color="primary" variant="soft">
@@ -118,9 +119,9 @@ const showEdit = computed(
           </div>
         </div>
 
-        <!-- Frames / Guardians / Liveries: JSONB stars (prominent) -->
+        <!-- Frames / Guardians / Liveries: JSONB stars (table, skill in description) -->
         <template v-if="hasJsonbStars">
-          <StarsBlock :stars="(item.stars as any) ?? null" />
+          <StarsTable :stars="(item.stars as any) ?? null" />
         </template>
 
         <!-- Legacy star tables (e.g. rangers) with _star1.._star5 columns -->

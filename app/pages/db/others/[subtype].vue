@@ -3,6 +3,7 @@ import { h, resolveComponent } from 'vue'
 import type { EntityTable, OthersSubtype } from '~/types'
 import type { TableColumn } from '@nuxt/ui'
 import { getQualityBorderClass } from '~/utils/colors'
+import { resolveDescriptionWithSkill } from '~/utils/stars'
 
 definePageMeta({ layout: 'default' })
 
@@ -70,7 +71,7 @@ const pageTitle = computed(() => {
   return $t('nav.frame')
 })
 
-const StarsBlockComponent = resolveComponent('StarsBlock')
+const StarsTableComponent = resolveComponent('StarsTable')
 
 const tableColumns = computed<TableColumn<OthersRow>[]>(() => {
   const cols: TableColumn<OthersRow>[] = [
@@ -83,8 +84,11 @@ const tableColumns = computed<TableColumn<OthersRow>[]>(() => {
     {
       accessorKey: 'description',
       header: 'Description',
-      cell: ({ row }) => row.original.description ?? '—',
-      meta: { class: { th: 'max-w-[220px]', td: 'max-w-[220px] text-muted break-words whitespace-normal' } }
+      cell: ({ row }) => {
+        const text = resolveDescriptionWithSkill(row.original.description as string, (row.original.stars ?? null) as any)
+        return h('span', { class: 'max-w-[220px] block text-muted break-words whitespace-normal' }, text)
+      },
+      meta: { class: { th: 'max-w-[220px]', td: 'max-w-[220px]' } }
     }
   ]
   if (showTurretColumn.value) {
@@ -98,7 +102,7 @@ const tableColumns = computed<TableColumn<OthersRow>[]>(() => {
   cols.push({
     accessorKey: 'stars',
     header: 'Stars',
-    cell: ({ row }) => h(StarsBlockComponent, { stars: (row.original.stars ?? null) as any }),
+    cell: ({ row }) => h(StarsTableComponent, { stars: (row.original.stars ?? null) as any }),
     meta: { class: { th: 'min-w-[320px]', td: 'min-w-[320px]' } }
   })
   return cols
@@ -152,8 +156,8 @@ const tableMeta = computed(() => ({
         />
       </div>
 
-      <!-- Mobile: cards -->
-      <div class="grid grid-cols-2 gap-4 md:hidden">
+      <!-- Mobile: single column cards -->
+      <div class="grid grid-cols-1 gap-4 md:hidden">
         <OthersCard
           v-for="item in items"
           :key="String(item.id)"
