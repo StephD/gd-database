@@ -134,9 +134,14 @@ const tableMeta = computed(() => ({
       />
     </div>
 
-    <h1 class="text-2xl font-bold mb-6">
-      {{ pageTitle }}
-    </h1>
+    <div class="flex flex-wrap items-center justify-between gap-4 mb-6">
+      <h1 class="text-2xl font-bold">
+        {{ pageTitle }}
+      </h1>
+      <p v-if="items?.length" class="text-sm text-muted">
+        {{ items.length }} {{ subtype }}
+      </p>
+    </div>
 
     <div v-if="showTurretFilter" class="mb-4">
       <USelectMenu
