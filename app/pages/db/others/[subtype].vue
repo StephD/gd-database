@@ -2,7 +2,7 @@
 import { h, resolveComponent } from 'vue'
 import type { EntityTable, OthersSubtype } from '~/types'
 import type { TableColumn } from '@nuxt/ui'
-import { getQualityBorderClass } from '~/utils/colors'
+import { getQualityBorderClass, getQualitySoftPillClass } from '~/utils/colors'
 import { resolveDescriptionWithSkill } from '~/utils/stars'
 
 definePageMeta({ layout: 'default' })
@@ -78,8 +78,12 @@ const tableColumns = computed<TableColumn<OthersRow>[]>(() => {
     {
       accessorKey: 'name',
       header: 'Name',
-      cell: ({ row }) => row.original.name ?? '—',
-      meta: { class: { th: 'w-[180px]', td: 'w-[180px] font-medium' } }
+      cell: ({ row }) => {
+        const name = row.original.name ?? '—'
+        const pillClass = `inline-block px-2.5 py-1 rounded-full text-sm font-medium ${getQualitySoftPillClass(row.original.quality as string)}`
+        return h('span', { class: pillClass }, String(name))
+      },
+      meta: { class: { th: 'w-[180px]', td: 'w-[180px]' } }
     },
     {
       accessorKey: 'description',
@@ -102,7 +106,7 @@ const tableColumns = computed<TableColumn<OthersRow>[]>(() => {
   cols.push({
     accessorKey: 'stars',
     header: 'Stars',
-    cell: ({ row }) => h(StarsTableComponent, { stars: (row.original.stars ?? null) as any }),
+    cell: ({ row }) => h(StarsTableComponent, { stars: (row.original.stars ?? null) as any, quality: row.original.quality as string }),
     meta: { class: { th: 'min-w-[320px]', td: 'min-w-[320px]' } }
   })
   return cols
@@ -111,7 +115,7 @@ const tableColumns = computed<TableColumn<OthersRow>[]>(() => {
 const tableMeta = computed(() => ({
   class: {
     tr: (row: { original: OthersRow }) =>
-      `border-l-4 ${getQualityBorderClass(row.original.quality as string)} cursor-pointer hover:bg-muted/30`
+      `border-l-4 mb-4 cursor-pointer hover:bg-muted/30`
   }
 }))
 </script>

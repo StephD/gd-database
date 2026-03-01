@@ -1,10 +1,17 @@
 <script setup lang="ts">
 import type { StarLevel } from '~/types'
-import { starDataAt, starTableStatKeys } from '~/utils/stars'
+import { getQualitySoftBgClass } from '~/utils/colors'
+import { normalizeStars, starDataAt, starTableStatKeys } from '~/utils/stars'
 
-defineProps<{
-  stars: StarLevel[] | null
+const props = defineProps<{
+  stars: StarLevel[] | null | Record<string, unknown>
+  quality?: string | null
 }>()
+
+const normalizedStars = computed(() => normalizeStars(props.stars))
+const headerRowClass = computed(() =>
+  `border-b border-default ${props.quality ? getQualitySoftBgClass(props.quality) : 'bg-muted/50'}`
+)
 
 const STAR_LABELS = ['1★', '2★', '3★', '4★', '5★']
 </script>
@@ -13,7 +20,7 @@ const STAR_LABELS = ['1★', '2★', '3★', '4★', '5★']
   <div class="overflow-x-auto rounded-lg border border-default">
     <table class="w-full text-sm">
       <thead>
-        <tr class="border-b border-default bg-muted/50">
+        <tr :class="headerRowClass">
           <th class="text-left py-2 px-3 font-medium w-28">Stat</th>
           <th
             v-for="(_, i) in STAR_LABELS"
@@ -26,7 +33,7 @@ const STAR_LABELS = ['1★', '2★', '3★', '4★', '5★']
       </thead>
       <tbody>
         <tr
-          v-for="key in starTableStatKeys(stars)"
+          v-for="key in starTableStatKeys(normalizedStars)"
           :key="key"
           class="border-b border-default/50"
         >
@@ -36,7 +43,7 @@ const STAR_LABELS = ['1★', '2★', '3★', '4★', '5★']
             :key="i"
             class="text-center py-1.5 px-2 tabular-nums"
           >
-            {{ starDataAt(stars, i)?.[key] ?? '—' }}
+            {{ starDataAt(normalizedStars, i)?.[key] ?? '—' }}
           </td>
         </tr>
       </tbody>

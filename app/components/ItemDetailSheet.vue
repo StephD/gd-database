@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import type { EntityTable } from '~/types'
+import { getQualitySoftPillClass } from '~/utils/colors'
 import { resolveDescriptionWithSkill } from '~/utils/stars'
 
 const props = withDefaults(
@@ -109,7 +110,7 @@ const showEdit = computed(
               {{ resolveDescriptionWithSkill(item.description as string, (item.stars ?? null) as any) }}
             </p>
             <div v-if="item.quality || item.turret_name" class="flex flex-wrap gap-2 mt-2">
-              <UBadge v-if="item.quality" size="xs" color="primary" variant="soft">
+              <UBadge v-if="item.quality" size="xs" :class="getQualitySoftPillClass(item.quality as string)">
                 {{ item.quality }}
               </UBadge>
               <span v-if="item.turret_name" class="text-xs text-muted">
@@ -121,7 +122,7 @@ const showEdit = computed(
 
         <!-- Frames / Guardians / Liveries: JSONB stars (table, skill in description) -->
         <template v-if="hasJsonbStars">
-          <StarsTable :stars="(item.stars as any) ?? null" />
+          <StarsTable :stars="(item.stars as any) ?? null" :quality="(item?.quality as string) ?? undefined" />
         </template>
 
         <!-- Legacy star tables (e.g. rangers) with _star1.._star5 columns -->

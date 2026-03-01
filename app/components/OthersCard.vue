@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { getQualityBorderClass } from '~/utils/colors'
+import { getQualityBorderClass, getQualitySoftPillClass } from '~/utils/colors'
 import { resolveDescriptionWithSkill } from '~/utils/stars'
 
 defineProps<{
@@ -21,9 +21,11 @@ defineEmits<{
   >
     <template #header>
       <div class="flex items-start justify-between gap-2">
-        <h3 class="font-semibold leading-tight">
+        <span
+          :class="['inline-block px-2.5 py-1 rounded-full text-sm font-semibold leading-tight', getQualitySoftPillClass(item.quality as string)]"
+        >
           {{ item.name ?? '—' }}
-        </h3>
+        </span>
       </div>
     </template>
 
@@ -33,6 +35,6 @@ defineEmits<{
     <p v-if="showTurret" class="text-xs text-muted mb-2">
       {{ turretDisplay(item) }}
     </p>
-    <StarsTable :stars="(item.stars as any) ?? null" />
+    <StarsTable :stars="(item.stars as any) ?? null" :quality="(item.quality as string) ?? undefined" />
   </UCard>
 </template>
