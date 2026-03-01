@@ -84,7 +84,7 @@ const showEdit = computed(
 </script>
 
 <template>
-  <USlideover v-model:open="open" title="Item Details" side="bottom" class="sm:max-w-lg sm:mx-auto">
+  <UModal v-model:open="open" title="Item Details" :ui="{ content: 'sm:max-w-lg' }">
     <template #body>
       <div v-if="item" class="space-y-4 pb-4">
         <div class="flex items-start gap-4">
@@ -175,7 +175,7 @@ const showEdit = computed(
         </p>
       </div>
     </template>
-  </USlideover>
+  </UModal>
 
   <EditItemForm
     v-if="item && !readOnly"

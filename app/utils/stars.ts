@@ -3,11 +3,35 @@ import type { StarLevel } from '~/types'
 /** Placeholder in descriptions replaced with the first "skill" value from stars. Do not change when editing descriptions. */
 export const DESCRIPTION_SKILL_PLACEHOLDER = '{{skill}}'
 
+/** Normalize stars from DB: object format {"1": {...}|null, "2": null, ...} (always keys "1"-"5") → array [star1, star2, ...] for UI. */
+export function normalizeStars(raw: unknown): StarLevel[] | null {
+  if (raw == null) return null
+  if (Array.isArray(raw)) {
+    const arr: StarLevel[] = []
+    for (let i = 0; i < 5; i++) {
+      const data = raw[i]
+      arr.push(data && typeof data === 'object' && !Array.isArray(data) && Object.keys(data).length ? data : null)
+    }
+    return arr.some(Boolean) ? arr : null
+  }
+  if (typeof raw === 'object' && !Array.isArray(raw)) {
+    const obj = raw as Record<string, Record<string, string> | null>
+    const arr: StarLevel[] = []
+    for (let i = 1; i <= 5; i++) {
+      const data = obj[String(i)]
+      arr.push(data && typeof data === 'object' && Object.keys(data).length ? data : null)
+    }
+    return arr.some(Boolean) ? arr : null
+  }
+  return null
+}
+
 const SKILL_KEYS = ['skill', 'skill data']
 
-function getFirstSkillValue(stars: StarLevel[] | null): string {
-  if (!stars || !Array.isArray(stars)) return ''
-  for (const s of stars) {
+function getFirstSkillValue(stars: StarLevel[] | null | unknown): string {
+  const normalized = Array.isArray(stars) ? stars : normalizeStars(stars)
+  if (!normalized) return ''
+  for (const s of normalized) {
     if (!s || typeof s !== 'object') continue
     for (const key of SKILL_KEYS) {
       if (key in s && s[key]) return String(s[key])
@@ -22,7 +46,7 @@ function getFirstSkillValue(stars: StarLevel[] | null): string {
  */
 export function resolveDescriptionWithSkill(
   description: string | null | undefined,
-  stars: StarLevel[] | null
+  stars: StarLevel[] | null | unknown
 ): string {
   if (!description) return ''
   const value = getFirstSkillValue(stars)
@@ -32,10 +56,11 @@ export function resolveDescriptionWithSkill(
 /** Keys to hide from the stars table. Empty = show all (including skill) in table for now. */
 export const STAR_TABLE_HIDDEN_KEYS = new Set<string>()
 
-export function starTableStatKeys(stars: StarLevel[] | null): string[] {
-  if (!stars || !Array.isArray(stars)) return []
+export function starTableStatKeys(stars: StarLevel[] | null | unknown): string[] {
+  const normalized = Array.isArray(stars) ? stars : normalizeStars(stars)
+  if (!normalized) return []
   const keys = new Set<string>()
-  for (const s of stars) {
+  for (const s of normalized) {
     if (s && typeof s === 'object') {
       for (const k of Object.keys(s)) {
         if (!STAR_TABLE_HIDDEN_KEYS.has(k)) keys.add(k)
@@ -45,8 +70,9 @@ export function starTableStatKeys(stars: StarLevel[] | null): string[] {
   return [...keys]
 }
 
-export function starDataAt(stars: StarLevel[] | null, index: number): Record<string, string> | null {
-  if (!stars || !Array.isArray(stars)) return null
-  const s = stars[index]
+export function starDataAt(stars: StarLevel[] | null | unknown, index: number): Record<string, string> | null {
+  const normalized = Array.isArray(stars) ? stars : normalizeStars(stars)
+  if (!normalized) return null
+  const s = normalized[index]
   return s && typeof s === 'object' && Object.keys(s).length ? s : null
 }
