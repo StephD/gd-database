@@ -53,6 +53,39 @@ export function resolveDescriptionWithSkill(
   return description.replace(new RegExp(DESCRIPTION_SKILL_PLACEHOLDER.replace(/[{}]/g, '\\$&'), 'g'), value)
 }
 
+export type DescriptionSkillPart =
+  | { type: 'text'; value: string }
+  | { type: 'skill'; value: string }
+
+/**
+ * Splits description by {{skill}} and returns segments so the skill value can be rendered with custom styling (e.g. pill).
+ */
+export function resolveDescriptionWithSkillParts(
+  description: string | null | undefined,
+  stars: StarLevel[] | null | unknown
+): DescriptionSkillPart[] {
+  if (!description) return []
+  const value = getFirstSkillValue(stars)
+  const re = new RegExp(DESCRIPTION_SKILL_PLACEHOLDER.replace(/[{}]/g, '\\$&'), 'g')
+  const parts: DescriptionSkillPart[] = []
+  let lastIndex = 0
+  let m: RegExpExecArray | null
+  while ((m = re.exec(description)) !== null) {
+    if (m.index > lastIndex) {
+      parts.push({ type: 'text', value: description.slice(lastIndex, m.index) })
+    }
+    parts.push({ type: 'skill', value })
+    lastIndex = re.lastIndex
+  }
+  if (lastIndex < description.length) {
+    parts.push({ type: 'text', value: description.slice(lastIndex) })
+  }
+  if (parts.length === 0) {
+    parts.push({ type: 'text', value: description })
+  }
+  return parts
+}
+
 /** Keys to hide from the stars table. Empty = show all (including skill) in table for now. */
 export const STAR_TABLE_HIDDEN_KEYS = new Set<string>()
 

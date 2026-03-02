@@ -13,7 +13,7 @@ useHead({
 
 useSeoMeta({
   title: 'Game Database',
-  description: 'Community-driven game database — browse guardians, turrets, chips, frame, rangers, frames and more.'
+  description: 'Community-driven game database — browse guardians, turrets, chips, frames, rangers and more.'
 })
 
 // Read the shared state directly — avoids creating extra watchers from the full composable

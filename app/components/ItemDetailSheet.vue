@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import type { EntityTable } from '~/types'
 import { getQualitySoftPillClass } from '~/utils/colors'
-import { resolveDescriptionWithSkill, rawStarsToJsonbObject } from '~/utils/stars'
+import { rawStarsToJsonbObject } from '~/utils/stars'
 
 const props = withDefaults(
   defineProps<{
@@ -179,7 +179,10 @@ const showEdit = computed(
               {{ item.name ?? '—' }}
             </h2>
             <p v-if="item.description" class="text-sm text-muted mt-1">
-              {{ resolveDescriptionWithSkill(item.description as string, (item.stars ?? null) as any) }}
+              <DescriptionWithSkill
+                :description="item.description as string"
+                :stars="(item.stars ?? null) as any"
+              />
             </p>
             <UBadge
               v-if="tableName === 'frames' && item.data_cooldown != null"

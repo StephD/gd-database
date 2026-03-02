@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import type { StarLevel } from '~/types'
-import { resolveDescriptionWithSkill, STAR_TABLE_HIDDEN_KEYS } from '~/utils/stars'
+import { STAR_TABLE_HIDDEN_KEYS } from '~/utils/stars'
 
 definePageMeta({ layout: 'default' })
 
@@ -66,7 +66,7 @@ const placeholderDisplay = '{{skill}}'
         <div class="mb-4">
           <h2 class="font-semibold text-lg">{{ row.name }}</h2>
           <p class="text-sm text-muted mt-1">
-            {{ resolveDescriptionWithSkill(row.description, row.stars) }}
+            <DescriptionWithSkill :description="row.description" :stars="row.stars" />
           </p>
         </div>
 

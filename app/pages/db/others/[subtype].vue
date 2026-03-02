@@ -3,7 +3,6 @@ import { h, resolveComponent } from 'vue'
 import type { EntityTable, OthersSubtype } from '~/types'
 import type { TableColumn } from '@nuxt/ui'
 import { getQualityBorderClass, getQualitySoftPillClass } from '~/utils/colors'
-import { resolveDescriptionWithSkill } from '~/utils/stars'
 
 definePageMeta({ layout: 'default' })
 
@@ -86,12 +85,21 @@ const tableColumns = computed<TableColumn<OthersRow>[]>(() => {
       accessorKey: 'description',
       header: 'Description',
       cell: ({ row }) => {
-        const text = resolveDescriptionWithSkill(row.original.description as string, (row.original.stars ?? null) as any)
         const isFrame = subtype.value === 'frames'
         const dataCooldown = isFrame ? (row.original.data_cooldown as number | null | undefined) : null
         const hasCooldown = dataCooldown != null && !Number.isNaN(dataCooldown)
+        const DescriptionWithSkillComponent = resolveComponent('DescriptionWithSkill')
         return h('div', { class: 'max-w-[220px] space-y-1.5' }, [
-          h('span', { class: 'block text-muted break-words whitespace-normal' }, text),
+          h(
+            'span',
+            { class: 'block text-muted' },
+            [
+              h(DescriptionWithSkillComponent, {
+                description: row.original.description as string,
+                stars: (row.original.stars ?? null) as any
+              })
+            ]
+          ),
           ...(hasCooldown
             ? [
                 h(

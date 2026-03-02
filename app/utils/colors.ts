@@ -31,7 +31,7 @@ export const CHIP_RARITY_CLASSES: Record<string, string> = {
   "Epic": 'bg-purple-400 text-purple-900 dark:bg-purple-800 dark:text-purple-100',
   "Legendary": 'bg-orange-400 text-orange-900 dark:bg-orange-800 dark:text-orange-100',
   "Supreme": 'bg-red-400 text-red-900 dark:bg-red-800 dark:text-red-100',
-  "Ultimate": 'bg-gradient-to-r from-red-400 via-green-400 to-blue-400 text-white',
+  "Ultimate": 'bg-gradient-to-r from-purple-500 via-pink-400 to-orange-400 text-white dark:from-purple-600 dark:via-pink-500 dark:to-orange-500',
   "Other": 'bg-gray-200 text-gray-800 dark:bg-gray-900/50 dark:text-gray-300',
 }
 
@@ -74,7 +74,7 @@ export const QUALITY_CLASSES: Record<string, string> = {
   "Epic": 'bg-purple-400 text-purple-900 dark:bg-purple-800 dark:text-purple-100',
   "Legendary": 'bg-orange-400 text-orange-900 dark:bg-orange-800 dark:text-orange-100',
   "Supreme": 'bg-red-400 text-red-900 dark:bg-red-800 dark:text-red-100',
-  "Ultimate": 'bg-gradient-to-r from-red-400 via-green-400 to-blue-400 text-white',
+  "Ultimate": 'bg-gradient-to-r from-purple-500 via-pink-400 to-orange-400 text-white dark:from-purple-600 dark:via-pink-500 dark:to-orange-500',
   "Other": 'bg-gray-200 text-gray-800 dark:bg-gray-900/50 dark:text-gray-300',
 }
 
@@ -86,7 +86,7 @@ export const QUALITY_BORDER: Record<string, string> = {
   "Epic": 'border-l-purple-500',
   "Legendary": 'border-l-orange-500',
   "Supreme": 'border-l-red-500',
-  "Ultimate": 'border-l-amber-400',
+  "Ultimate": 'border-l-purple-500',
   "Other": 'border-l-gray-400',
 }
 
@@ -98,7 +98,7 @@ export const QUALITY_SOFT_BG: Record<string, string> = {
   "Epic": 'bg-purple-50/90 dark:bg-purple-900/20',
   "Legendary": 'bg-orange-50/90 dark:bg-orange-900/20',
   "Supreme": 'bg-red-50/90 dark:bg-red-900/20',
-  "Ultimate": 'bg-amber-50/80 dark:bg-amber-900/20',
+  "Ultimate": 'bg-gradient-to-r from-purple-50/90 via-pink-50/70 to-orange-50/90 dark:from-purple-900/20 dark:via-pink-900/15 dark:to-orange-900/20',
   "Other": 'bg-gray-100/80 dark:bg-gray-800/25',
 }
 
@@ -110,7 +110,7 @@ export const QUALITY_SOFT_PILL: Record<string, string> = {
   "Epic": 'bg-purple-200/70 text-purple-800 dark:bg-purple-800/35 dark:text-purple-200',
   "Legendary": 'bg-orange-200/70 text-orange-800 dark:bg-orange-800/35 dark:text-orange-200',
   "Supreme": 'bg-red-200/70 text-red-800 dark:bg-red-800/35 dark:text-red-200',
-  "Ultimate": 'bg-amber-200/70 text-amber-900 dark:bg-amber-800/35 dark:text-amber-200',
+  "Ultimate": 'bg-gradient-to-r from-purple-200/90 via-pink-200/80 to-orange-200/90 text-purple-900 dark:from-purple-800/50 dark:via-pink-800/40 dark:to-orange-800/50 dark:text-purple-100',
   "Other": 'bg-gray-200/80 text-gray-700 dark:bg-gray-700/40 dark:text-gray-300',
 }
 

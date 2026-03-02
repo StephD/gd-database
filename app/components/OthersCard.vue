@@ -1,6 +1,5 @@
 <script setup lang="ts">
 import { getQualityBorderClass, getQualitySoftPillClass } from '~/utils/colors'
-import { resolveDescriptionWithSkill } from '~/utils/stars'
 
 defineProps<{
   item: Record<string, unknown>
@@ -29,8 +28,11 @@ defineEmits<{
       </div>
     </template>
 
-            <p v-if="item.description" class="text-sm text-muted break-words whitespace-normal mb-3">
-              {{ resolveDescriptionWithSkill(item.description as string, (item.stars ?? null) as any) }}
+            <p v-if="item.description" class="text-sm text-muted wrap-break-word whitespace-normal mb-3">
+              <DescriptionWithSkill
+                :description="item.description as string"
+                :stars="(item.stars ?? null) as any"
+              />
             </p>
             <UBadge
               v-if="item.data_cooldown != null"
