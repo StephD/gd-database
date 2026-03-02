@@ -29,9 +29,18 @@ defineEmits<{
       </div>
     </template>
 
-    <p v-if="item.description" class="text-sm text-muted break-words whitespace-normal mb-3">
-      {{ resolveDescriptionWithSkill(item.description as string, (item.stars ?? null) as any) }}
-    </p>
+            <p v-if="item.description" class="text-sm text-muted break-words whitespace-normal mb-3">
+              {{ resolveDescriptionWithSkill(item.description as string, (item.stars ?? null) as any) }}
+            </p>
+            <UBadge
+              v-if="item.data_cooldown != null"
+              size="xs"
+              variant="soft"
+              color="primary"
+              class="mb-2"
+            >
+              Data cooldown: {{ item.data_cooldown }}s
+            </UBadge>
     <p v-if="showTurret" class="text-xs text-muted mb-2">
       {{ turretDisplay(item) }}
     </p>

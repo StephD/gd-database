@@ -8,8 +8,6 @@ export interface UserProfile {
   email: string
   user_id: string
   is_admin: boolean
-  created_at: string
-  updated_at: string
 }
 
 export interface Turret {
@@ -28,7 +26,6 @@ export interface Turret {
   image_url: string | null
   parent_id: string | null
   submitted_by: string | null
-  created_at: string
 }
 
 export interface Chip {
@@ -49,8 +46,6 @@ export interface Chip {
   image_url: string | null
   parent_id: string | null
   submitted_by: string | null
-  created_at: string
-  updated_at: string | null
 }
 
 export interface Frame {
@@ -58,9 +53,8 @@ export interface Frame {
   name: string | null
   description: string | null
   quality: string | null
+  data_cooldown: number | null
   stars: StarLevel[] | null
-  created_at: string
-  updated_at: string | null
 }
 
 /** One star level: object with arbitrary key → string value (e.g. "CRIT DMG": "60%") */
@@ -73,8 +67,6 @@ export interface Guardian {
   description: string | null
   quality: string | null
   stars: StarLevel[] | null
-  created_at: string
-  updated_at: string | null
 }
 
 export interface Livery {
@@ -85,8 +77,6 @@ export interface Livery {
   description: string | null
   quality: string | null
   stars: StarLevel[] | null
-  created_at: string
-  updated_at: string | null
 }
 
 export interface Ranger {
@@ -106,8 +96,6 @@ export interface Ranger {
   spd_star5: number | null
   parent_id: string | null
   submitted_by: string | null
-  created_at: string
-  updated_at: string | null
 }
 
 export interface TurretType {

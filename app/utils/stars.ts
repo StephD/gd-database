@@ -76,3 +76,20 @@ export function starDataAt(stars: StarLevel[] | null | unknown, index: number): 
   const s = normalized[index]
   return s && typeof s === 'object' && Object.keys(s).length ? s : null
 }
+
+/** Build JSONB-safe object {"1": {...}, "2": {...}, ...} from raw stars for DB update. */
+export function rawStarsToJsonbObject(raw: unknown): Record<string, Record<string, string | null>> {
+  const normalized = normalizeStars(raw)
+  const result: Record<string, Record<string, string | null>> = { '1': {}, '2': {}, '3': {}, '4': {}, '5': {} }
+  const keys = normalized ? starTableStatKeys(normalized) : ['skill', 'crit_dmg', 'turret_final_dmg']
+  if (keys.length === 0) keys.push('skill', 'crit_dmg', 'turret_final_dmg')
+  for (let i = 0; i < 5; i++) {
+    const star = String(i + 1)
+    const row = normalized?.[i]
+    for (const k of keys) {
+      const v = row && typeof row === 'object' && k in row && row[k] != null ? String(row[k]) : null
+      result[star][k] = v
+    }
+  }
+  return result
+}

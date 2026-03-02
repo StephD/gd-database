@@ -11,7 +11,7 @@ const localePath = useLocalePath()
 const { t: $t } = useI18n()
 const route = useRoute()
 const { fetchBySubtype } = useOthers()
-const { turrets } = useTurrets()
+const { role } = useProfile()
 
 const allowedSubtypes: OthersSubtype[] = ['frames', 'guardians', 'liveries']
 const subtype = computed(() => (route.params.subtype as string) || 'frames')
@@ -28,7 +28,7 @@ const tabs = [
 
 type OthersRow = Record<string, unknown>
 
-const { data: itemsData } = await useAsyncData(
+const { data: itemsData, refresh: refreshItems } = await useAsyncData(
   `others-${subtype.value}`,
   () => fetchBySubtype(subtype.value as OthersSubtype),
   { watch: [subtype] }
@@ -36,19 +36,7 @@ const { data: itemsData } = await useAsyncData(
 
 const rawItems = computed(() => (itemsData.value ?? []) as unknown as OthersRow[])
 
-const showTurretFilter = computed(() => subtype.value === 'guardians' || subtype.value === 'liveries')
-const selectedTurretId = ref<string | null>(null)
-
-const turretFilterOptions = computed(() => [
-  { label: 'All turrets', value: null },
-  ...turrets.value.map(t => ({ label: t.name, value: t.id }))
-])
-
-const items = computed(() => {
-  const list = rawItems.value
-  if (!showTurretFilter.value || !selectedTurretId.value) return list
-  return list.filter(row => row.turret_id === selectedTurretId.value)
-})
+const items = computed(() => rawItems.value)
 
 const selectedItem = ref<Record<string, unknown> | null>(null)
 const sheetOpen = ref(false)
@@ -56,6 +44,15 @@ const sheetOpen = ref(false)
 function openSheet(item: Record<string, unknown>) {
   selectedItem.value = item
   sheetOpen.value = true
+}
+
+async function onEdited() {
+  await refreshItems()
+  const id = selectedItem.value?.id
+  if (id && itemsData.value) {
+    const found = (itemsData.value as OthersRow[]).find((r) => r.id === id)
+    if (found) selectedItem.value = found
+  }
 }
 
 const showTurretColumn = computed(() => subtype.value === 'guardians' || subtype.value === 'liveries')
@@ -90,7 +87,24 @@ const tableColumns = computed<TableColumn<OthersRow>[]>(() => {
       header: 'Description',
       cell: ({ row }) => {
         const text = resolveDescriptionWithSkill(row.original.description as string, (row.original.stars ?? null) as any)
-        return h('span', { class: 'max-w-[220px] block text-muted break-words whitespace-normal' }, text)
+        const isFrame = subtype.value === 'frames'
+        const dataCooldown = isFrame ? (row.original.data_cooldown as number | null | undefined) : null
+        const hasCooldown = dataCooldown != null && !Number.isNaN(dataCooldown)
+        return h('div', { class: 'max-w-[220px] space-y-1.5' }, [
+          h('span', { class: 'block text-muted break-words whitespace-normal' }, text),
+          ...(hasCooldown
+            ? [
+                h(
+                  'span',
+                  {
+                    class:
+                      'inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-primary/10 text-primary'
+                  },
+                  `Data cooldown: ${dataCooldown}s`
+                )
+              ]
+            : [])
+        ])
       },
       meta: { class: { th: 'max-w-[220px]', td: 'max-w-[220px]' } }
     }
@@ -143,16 +157,6 @@ const tableMeta = computed(() => ({
       </p>
     </div>
 
-    <div v-if="showTurretFilter" class="mb-4">
-      <USelectMenu
-        v-model="selectedTurretId"
-        value-key="value"
-        :items="turretFilterOptions"
-        placeholder="All turrets"
-        class="max-w-xs"
-      />
-    </div>
-
     <template v-if="items?.length">
       <!-- Desktop: table for all -->
       <div class="hidden md:block overflow-x-auto">
@@ -187,7 +191,8 @@ const tableMeta = computed(() => ({
       :item="selectedItem"
       :table-name="(subtype as EntityTable)"
       :has-pending="false"
-      :read-only="true"
+      :read-only="role !== 'admin'"
+      @edited="onEdited"
     />
   </div>
 </template>

@@ -26,5 +26,18 @@ export function useOthers() {
     return fetchLiveries()
   }
 
-  return { fetchFrames, fetchGuardians, fetchLiveries, fetchBySubtype }
+  /** Admin only: update a row in frames, guardians, or liveries. */
+  async function updateItem(
+    tableName: 'frames' | 'guardians' | 'liveries',
+    id: string,
+    payload: { name?: string | null; description?: string | null; quality?: string | null; stars?: Record<string, Record<string, string | null>> | null }
+  ) {
+    const { error } = await client
+      .from(tableName)
+      .update(payload)
+      .eq('id', id)
+    return { error }
+  }
+
+  return { fetchFrames, fetchGuardians, fetchLiveries, fetchBySubtype, updateItem }
 }

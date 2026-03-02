@@ -54,7 +54,7 @@ async function reject() {
             {{ revision.name || 'Unnamed' }}
           </h3>
           <p class="text-xs text-muted">
-            {{ tableName }} &middot; Submitted {{ new Date(revision.created_at).toLocaleDateString() }}
+            {{ tableName }}
           </p>
         </div>
         <UBadge color="warning" variant="subtle" label="Pending" />
