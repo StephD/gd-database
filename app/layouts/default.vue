@@ -10,22 +10,16 @@ const roleBgClass = computed(() => {
   return `${base} ${hover}`
 })
 
-const navLinks = computed(() => {
-  const links = [
-    { label: $t('nav.turrets'), to: localePath('/db/turrets'), icon: 'i-lucide-crosshair' },
-    { label: $t('nav.chips'), to: localePath('/db/chips'), icon: 'i-lucide-cpu' }
-  ]
-  if (authReady.value && role.value === 'admin') {
-    links.push({ label: $t('nav.editReview'), to: localePath('/admin/review'), icon: 'i-lucide-clipboard-check' })
-  }
-  return links
-})
+const navLinks = computed(() => ([
+  { label: $t('nav.turrets'), to: localePath('/db/turrets'), icon: 'i-lucide-crosshair' },
+  { label: $t('nav.chips'), to: localePath('/db/chips'), icon: 'i-lucide-cpu' }
+]))
 
 const othersMenuItems = computed(() => [[
-  { label: $t('nav.frame'), icon: 'i-lucide-shield', to: localePath('/db/others/frames') },
-  { label: $t('nav.guardian'), icon: 'i-lucide-swords', to: localePath('/db/others/guardians') },
-  { label: $t('nav.livery'), icon: 'i-lucide-palette', to: localePath('/db/others/liveries') },
-  { label: $t('nav.starVariants'), icon: 'i-lucide-layout-grid', to: localePath('/db/others/star-variants') }
+  { label: $t('nav.frame'), icon: 'i-lucide-shield', to: localePath('/db/skills/frames') },
+  { label: $t('nav.guardian'), icon: 'i-lucide-swords', to: localePath('/db/skills/guardians') },
+  { label: $t('nav.livery'), icon: 'i-lucide-palette', to: localePath('/db/skills/liveries') },
+  { label: 'Rangers', icon: 'i-lucide-user', to: localePath('/db/skills/rangers') }
 ]])
 
 const userMenuItems = computed(() => [[
@@ -55,7 +49,7 @@ const userMenuItems = computed(() => [[
             />
             <UDropdownMenu :items="othersMenuItems">
               <UButton
-                :label="$t('nav.others')"
+                :label="$t('nav.skills')"
                 icon="i-lucide-shapes"
                 variant="ghost"
                 color="neutral"
@@ -94,7 +88,7 @@ const userMenuItems = computed(() => [[
         </div>
       </div>
 
-      <nav class="sm:hidden flex items-center justify-around border-t border-default px-2 py-1">
+      <nav class="sm:hidden flex items-center justify-between gap-1 border-t border-default px-2 py-1">
         <UButton
           v-for="link in navLinks"
           :key="link.to"
@@ -104,48 +98,18 @@ const userMenuItems = computed(() => [[
           variant="ghost"
           color="neutral"
           size="xs"
+          class="flex-1 min-w-0 justify-center"
         />
-        <UButton
-          :to="localePath('/db/others/frames')"
-          :label="$t('nav.frame')"
-          icon="i-lucide-shield"
-          variant="ghost"
-          color="neutral"
-          size="xs"
-        />
-        <UButton
-          :to="localePath('/db/others/guardians')"
-          :label="$t('nav.guardian')"
-          icon="i-lucide-swords"
-          variant="ghost"
-          color="neutral"
-          size="xs"
-        />
-        <UButton
-          :to="localePath('/db/others/liveries')"
-          :label="$t('nav.livery')"
-          icon="i-lucide-palette"
-          variant="ghost"
-          color="neutral"
-          size="xs"
-        />
-        <UButton
-          :to="localePath('/db/others/star-variants')"
-          :label="$t('nav.starVariants')"
-          icon="i-lucide-layout-grid"
-          variant="ghost"
-          color="neutral"
-          size="xs"
-        />
-        <UButton
-          v-if="authReady && role === 'admin'"
-          :to="localePath('/admin/review')"
-          :label="$t('nav.editReview')"
-          icon="i-lucide-clipboard-check"
-          variant="ghost"
-          color="neutral"
-          size="xs"
-        />
+        <UDropdownMenu :items="othersMenuItems">
+          <UButton
+            :label="$t('nav.skills')"
+            icon="i-lucide-shapes"
+            variant="ghost"
+            color="neutral"
+            size="xs"
+            class="flex-1 min-w-16 justify-center"
+          />
+        </UDropdownMenu>
       </nav>
     </header>
 

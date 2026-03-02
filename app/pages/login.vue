@@ -5,8 +5,8 @@ const client = useSupabaseClient()
 const toast = useToast()
 
 const mode = ref<'login' | 'signup' | 'reset'>('login')
-const email = ref('admin@admin.com')
-const password = ref('admin321')
+const email = ref('')
+const password = ref('')
 const submitting = ref(false)
 
 const title = computed(() => {

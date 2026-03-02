@@ -9,27 +9,35 @@ definePageMeta({ layout: 'default' })
 const localePath = useLocalePath()
 const { t: $t } = useI18n()
 const route = useRoute()
-const { fetchBySubtype } = useOthers()
+const { fetchBySubtype } = useSkills()
 const { role } = useProfile()
 
-const allowedSubtypes: OthersSubtype[] = ['frames', 'guardians', 'liveries']
-const subtype = computed(() => (route.params.subtype as string) || 'frames')
+const allowedSubtypes = ['frames', 'guardians', 'liveries', 'rangers'] as const
+type SkillsSubtype = (typeof allowedSubtypes)[number]
 
-if (!allowedSubtypes.includes(subtype.value as OthersSubtype)) {
-  await navigateTo(localePath('/db/others/frames'), { replace: true })
+const subtype = computed<SkillsSubtype>(() => {
+  const raw = (route.params.subtype as string) || 'frames'
+  return (allowedSubtypes.includes(raw as SkillsSubtype) ? raw : 'frames') as SkillsSubtype
+})
+
+const isRangers = computed(() => subtype.value === 'rangers')
+
+if (!allowedSubtypes.includes(subtype.value)) {
+  await navigateTo(localePath('/db/skills/frames'), { replace: true })
 }
 
 const tabs = [
-  { label: $t('nav.frame'), to: '/db/others/frames' },
-  { label: $t('nav.guardian'), to: '/db/others/guardians' },
-  { label: $t('nav.livery'), to: '/db/others/liveries' }
+  { label: $t('nav.frame'), to: '/db/skills/frames' },
+  { label: $t('nav.guardian'), to: '/db/skills/guardians' },
+  { label: $t('nav.livery'), to: '/db/skills/liveries' },
+  { label: 'Rangers', to: '/db/skills/rangers' }
 ]
 
 type OthersRow = Record<string, unknown>
 
 const { data: itemsData, refresh: refreshItems } = await useAsyncData(
   `others-${subtype.value}`,
-  () => fetchBySubtype(subtype.value as OthersSubtype),
+  () => (isRangers.value ? Promise.resolve([]) : fetchBySubtype(subtype.value as OthersSubtype)),
   { watch: [subtype] }
 )
 
@@ -49,7 +57,8 @@ async function onEdited() {
   await refreshItems()
   const id = selectedItem.value?.id
   if (id && itemsData.value) {
-    const found = (itemsData.value as OthersRow[]).find((r) => r.id === id)
+    const rows = (itemsData.value ?? []) as unknown as OthersRow[]
+    const found = rows.find((r) => r.id === id)
     if (found) selectedItem.value = found
   }
 }
@@ -64,6 +73,7 @@ const pageTitle = computed(() => {
   const s = subtype.value
   if (s === 'liveries') return $t('nav.livery')
   if (s === 'guardians') return $t('nav.guardian')
+  if (s === 'rangers') return 'Rangers'
   return $t('nav.frame')
 })
 
@@ -160,12 +170,12 @@ const tableMeta = computed(() => ({
       <h1 class="text-2xl font-bold">
         {{ pageTitle }}
       </h1>
-      <p v-if="items?.length" class="text-sm text-muted">
+      <p v-if="items?.length && !isRangers" class="text-sm text-muted">
         {{ items.length }} {{ subtype }}
       </p>
     </div>
 
-    <template v-if="items?.length">
+    <template v-if="items?.length && !isRangers">
       <!-- Desktop: table for all -->
       <div class="hidden md:block overflow-x-auto">
         <UTable
@@ -191,10 +201,16 @@ const tableMeta = computed(() => ({
     </template>
 
     <div v-else class="text-center text-muted py-20">
-      No {{ subtype }} found.
+      <span v-if="isRangers">
+        Ranger skills are not yet available.
+      </span>
+      <span v-else>
+        No {{ subtype }} found.
+      </span>
     </div>
 
     <ItemDetailSheet
+      v-if="!isRangers"
       v-model:open="sheetOpen"
       :item="selectedItem"
       :table-name="(subtype as EntityTable)"
@@ -204,3 +220,4 @@ const tableMeta = computed(() => ({
     />
   </div>
 </template>
+

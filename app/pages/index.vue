@@ -6,8 +6,9 @@ const localePath = useLocalePath()
 const links = [
   { label: 'Turrets', to: '/db/turrets', icon: 'i-lucide-crosshair', description: 'Browse turret database' },
   { label: 'Chips', to: '/db/chips', icon: 'i-lucide-cpu', description: 'Browse chip database' },
-  { label: 'Frames', to: '/db/others/frames', icon: 'i-lucide-shield', description: 'Frame stats & upgrades' },
-  { label: 'Guardians', to: '/db/others/guardians', icon: 'i-lucide-swords', description: 'Guardian stats & upgrades' }
+  { label: 'Fortress Frame Skills', to: '/db/skills/frames', icon: 'i-lucide-shield', description: 'Frame skills & stats' },
+  { label: 'Guardian Skills', to: '/db/skills/guardians', icon: 'i-lucide-swords', description: 'Guardian skills & stats' },
+  { label: 'Livery Skills', to: '/db/skills/liveries', icon: 'i-lucide-palette', description: 'Livery skills & stats' }
 ]
 </script>
 

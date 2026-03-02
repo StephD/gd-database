@@ -2,7 +2,7 @@ import type { Frame, Guardian, Livery } from '~/types'
 
 export type OthersItem = Frame | (Guardian & { turret_name?: string }) | Livery
 
-export function useOthers() {
+export function useSkills() {
   const client = useSupabaseClient()
 
   async function fetchFrames() {
@@ -41,3 +41,4 @@ export function useOthers() {
 
   return { fetchFrames, fetchGuardians, fetchLiveries, fetchBySubtype, updateItem }
 }
+

@@ -21,7 +21,7 @@ const emit = defineEmits<{
 
 const { role } = useProfile()
 const toast = useToast()
-const { updateItem } = useOthers()
+const { updateItem } = useSkills()
 
 const editOpen = ref(false)
 const editMode = ref(false)
@@ -134,7 +134,11 @@ const showEdit = computed(
 </script>
 
 <template>
-  <UModal v-model:open="open" :title="editMode ? 'Edit item' : 'Item Details'" :ui="{ content: 'sm:max-w-lg' }">
+  <UModal
+    v-model:open="open"
+    :title="editMode ? 'Edit item' : 'Item Details'"
+    :ui="{ content: 'w-[calc(100%-1.5rem)] sm:max-w-lg max-h-[80vh] overflow-y-auto' }"
+  >
     <template #body>
       <div v-if="item" class="space-y-4 pb-4">
         <!-- Edit mode (admin, others only) -->

@@ -14,6 +14,18 @@ const headerRowClass = computed(() =>
 )
 
 const STAR_LABELS = ['1★', '2★', '3★', '4★', '5★']
+
+const SKILL_KEYS = ['skill', 'skill data']
+
+function isSkillKey(key: string): boolean {
+  return SKILL_KEYS.includes(key.toLowerCase())
+}
+
+function formatStatKey(key: string): string {
+  if (!key) return key
+  const withSpaces = key.replace(/_/g, ' ')
+  return withSpaces.charAt(0).toUpperCase() + withSpaces.slice(1)
+}
 </script>
 
 <template>
@@ -37,13 +49,27 @@ const STAR_LABELS = ['1★', '2★', '3★', '4★', '5★']
           :key="key"
           class="border-b border-default/50"
         >
-          <td class="py-1.5 px-3 font-medium text-muted">{{ key }}</td>
+          <td class="py-1.5 px-3 font-medium text-muted">
+            {{ formatStatKey(key) }}
+          </td>
           <td
             v-for="(_, i) in STAR_LABELS"
             :key="i"
             class="text-center py-1.5 px-2 tabular-nums"
           >
-            {{ starDataAt(normalizedStars, i)?.[key] ?? '—' }}
+            <template v-if="isSkillKey(key)">
+              <UBadge
+                size="xs"
+                variant="soft"
+                color="primary"
+                class="text-xs font-bold align-baseline"
+              >
+                {{ starDataAt(normalizedStars, i)?.[key] ?? '—' }}
+              </UBadge>
+            </template>
+            <template v-else>
+              {{ starDataAt(normalizedStars, i)?.[key] ?? '—' }}
+            </template>
           </td>
         </tr>
       </tbody>
