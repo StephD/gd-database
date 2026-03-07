@@ -6,6 +6,7 @@ import { getQualitySoftPillClass } from '~/utils/colors'
 import {
   useChips,
   getChipQualities,
+  getChipQualityValues,
   resolveChipDescriptionParts,
   GEAR_ICON_SLUG
 } from '~/composables/useChips'
@@ -423,11 +424,7 @@ const tableMeta = computed(() => ({
           class="rounded-xl border border-default bg-default p-4 text-left cursor-pointer hover:border-primary hover:bg-muted/20 transition"
           @click="openSheet(chip as unknown as Record<string, unknown>)"
         >
-          <div class="flex items-start gap-2 mb-2">
-            <div class="flex items-center gap-0.5 shrink-0">
-              <span v-if="chip.valuable" class="text-yellow-500 text-lg leading-none" title="Valuable">★</span>
-              <span v-if="chip.ember_only" class="text-yellow-500 text-lg leading-none" title="Ember only">★</span>
-            </div>
+          <div class="flex items-start justify-between gap-2 mb-2">
             <div class="flex flex-wrap items-center gap-1.5 min-w-0">
               <template v-if="gearsList(chip.compatible_gears).length">
                 <template v-for="name in gearsList(chip.compatible_gears)" :key="name">
@@ -442,10 +439,47 @@ const tableMeta = computed(() => ({
               </template>
               <span v-else class="text-muted text-xs">—</span>
             </div>
+            <div class="flex items-center gap-1.5 shrink-0">
+              <template v-if="turretsList(chip.affected_turrets).length">
+                <img
+                  v-for="name in turretsList(chip.affected_turrets)"
+                  :key="name"
+                  :src="`/ref/turret/${turretIconSlug(name)}.webp`"
+                  :alt="name"
+                  class="size-5 object-contain"
+                  :title="name"
+                >
+              </template>
+              <span v-if="chip.valuable" class="text-yellow-500 text-lg leading-none" title="Valuable">★</span>
+              <span v-if="chip.ember_only" class="text-yellow-500 text-lg leading-none" title="Ember only">★</span>
+            </div>
           </div>
-          <p class="text-sm text-muted line-clamp-2">
-            {{ chip.description || '—' }}
+          <p class="text-sm text-muted line-clamp-2 mb-2">
+            <template v-if="resolveChipDescriptionParts(chip.description, chip as unknown as Record<string, unknown>, selectedQualities.length ? selectedQualities : undefined).length">
+              <template v-for="(part, i) in resolveChipDescriptionParts(chip.description, chip as unknown as Record<string, unknown>, selectedQualities.length ? selectedQualities : undefined)" :key="i">
+                <template v-if="part.type === 'text'">{{ part.value }}</template>
+                <span
+                  v-else
+                  :class="['inline-block px-2 py-0.5 rounded-md border border-default text-xs font-medium align-baseline mx-0.5', getQualitySoftPillClass(part.quality)]"
+                >
+                  {{ part.value }}
+                </span>
+              </template>
+            </template>
+            <template v-else>
+              {{ chip.description || '—' }}
+            </template>
           </p>
+          <div class="flex flex-wrap gap-1">
+            <template v-for="row in getChipQualityValues(chip as unknown as Record<string, unknown>)" :key="row.quality">
+              <span :class="['inline-block px-2 py-0.5 rounded-full text-xs font-medium', getQualitySoftPillClass(row.quality)]">
+                {{ row.value0 }}
+              </span>
+              <span v-if="row.value1 != null" :class="['inline-block px-2 py-0.5 rounded-full text-xs font-medium', getQualitySoftPillClass(row.quality)]">
+                {{ row.value1 }}
+              </span>
+            </template>
+          </div>
         </button>
       </div>
 
