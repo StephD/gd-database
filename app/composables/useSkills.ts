@@ -39,6 +39,21 @@ export function useSkills() {
     return { error }
   }
 
-  return { fetchFrames, fetchGuardians, fetchLiveries, fetchBySubtype, updateItem }
+  /** Admin only: create a guardian or livery. turret_id is required. */
+  async function createItem(
+    tableName: 'guardians' | 'liveries',
+    payload: {
+      turret_id: string
+      name?: string | null
+      description?: string | null
+      quality?: string | null
+      stars?: Record<string, Record<string, string | null>> | null
+    }
+  ) {
+    const { error } = await client.from(tableName).insert(payload)
+    return { error }
+  }
+
+  return { fetchFrames, fetchGuardians, fetchLiveries, fetchBySubtype, updateItem, createItem }
 }
 

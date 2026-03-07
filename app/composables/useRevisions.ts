@@ -18,27 +18,21 @@ export function useRevisions() {
   }
 
   async function submitEdit(tableName: EntityTable, liveRecord: Record<string, any>, editedData: Record<string, any>) {
-    const { user, fetchUser } = useAuthUser()
-    await fetchUser()
-    const userId = user.value?.id
+    const user = useSupabaseUser()
+    const userId = user.value?.id ?? user.value?.sub
     if (!userId) return { error: 'Not authenticated' }
 
-    const { id: _id, created_at: _ca, updated_at: _ua, parent_id: _pid, submitted_by: _sb, ...liveFields } = liveRecord
-    const row = {
-      ...liveFields,
-      ...editedData,
-      parent_id: liveRecord.id,
-      submitted_by: userId
-    }
-
-    const { error } = await client.from(tableName).insert(row)
+    const { error } = await client
+      .from(tableName)
+      .update(editedData)
+      .eq('id', liveRecord.id)
 
     if (error) {
       toast.add({ title: `Failed to submit edit: ${error.message}`, color: 'error' })
       return { error: error.message }
     }
 
-    toast.add({ title: 'Edit submitted for review', color: 'success' })
+    toast.add({ title: 'Saved', color: 'success' })
     return { error: null }
   }
 

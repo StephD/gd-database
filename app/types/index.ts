@@ -24,7 +24,6 @@ export interface Turret {
   dmg_interval: number | null
   penetration: number | null
   image_url: string | null
-  parent_id: string | null
   submitted_by: string | null
 }
 
@@ -32,19 +31,19 @@ export interface Chip {
   id: string
   name: string
   description: string | null
-  compatible_gears: string | null
-  affected_turrets: string | null
+  compatible_gears: string | string[] | null
+  affected_turrets: string | string[] | null
   boost_type: string | null
-  value_common: number | null
-  value_fine: number | null
-  value_rare: number | null
-  value_epic: number | null
-  value_legendary: number | null
-  value_supreme: number | null
-  value_ultimate: number | null
+  value_common: number | string | null
+  value_fine: number | string | null
+  value_rare: number | string | null
+  value_epic: number | string | null
+  value_legendary: number | string | null
+  value_supreme: number | string | null
+  value_ultimate: number | string | null
   valuable: boolean | null
+  ember_only?: boolean | null
   image_url: string | null
-  parent_id: string | null
   submitted_by: string | null
 }
 
@@ -94,7 +93,6 @@ export interface Ranger {
   spd_star3: number | null
   spd_star4: number | null
   spd_star5: number | null
-  parent_id: string | null
   submitted_by: string | null
 }
 

@@ -10,7 +10,6 @@ export function useTurrets() {
     const { data } = await client
       .from('turrets')
       .select('*')
-      .is('parent_id', null)
       .order('name')
 
     return (data ?? []) as Turret[]

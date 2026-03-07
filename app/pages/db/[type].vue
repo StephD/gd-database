@@ -18,8 +18,10 @@ if (!allowedTypes.includes(type.value as EntityTable)) {
 
 const { data: items, refresh } = await useAsyncData(
   `items-${type.value}`,
-  () => client.from(type.value).select('*').is('parent_id', null).then(r => r.data ?? []),
-  { watch: [type] }
+  async () => {
+    const { data } = await client.from(type.value).select('*')
+    return data as unknown as Record<string, any>[]
+  }
 )
 
 const pendingIds = ref(new Set<string>())

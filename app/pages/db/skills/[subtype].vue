@@ -47,6 +47,14 @@ const items = computed(() => rawItems.value)
 
 const selectedItem = ref<Record<string, unknown> | null>(null)
 const sheetOpen = ref(false)
+const createModalOpen = ref(false)
+
+const showCreateButton = computed(
+  () =>
+    (subtype.value === 'guardians' || subtype.value === 'liveries') &&
+    role.value === 'admin' &&
+    !isRangers.value
+)
 
 function openSheet(item: Record<string, unknown>) {
   selectedItem.value = item
@@ -61,6 +69,10 @@ async function onEdited() {
     const found = rows.find((r) => r.id === id)
     if (found) selectedItem.value = found
   }
+}
+
+function onCreated() {
+  refreshItems()
 }
 
 const showTurretColumn = computed(() => subtype.value === 'guardians' || subtype.value === 'liveries')
@@ -170,9 +182,18 @@ const tableMeta = computed(() => ({
       <h1 class="text-2xl font-bold">
         {{ pageTitle }}
       </h1>
-      <p v-if="items?.length && !isRangers" class="text-sm text-muted">
-        {{ items.length }} {{ subtype }}
-      </p>
+      <div class="flex items-center gap-2">
+        <p v-if="items?.length && !isRangers" class="text-sm text-muted">
+          {{ items.length }} {{ subtype }}
+        </p>
+        <UButton
+          v-if="showCreateButton"
+          label="Add new"
+          icon="i-lucide-plus"
+          size="sm"
+          @click="createModalOpen = true"
+        />
+      </div>
     </div>
 
     <template v-if="items?.length && !isRangers">
@@ -217,6 +238,13 @@ const tableMeta = computed(() => ({
       :has-pending="false"
       :read-only="role !== 'admin'"
       @edited="onEdited"
+    />
+
+    <CreateGuardianLiveryModal
+      v-if="showCreateButton"
+      v-model:open="createModalOpen"
+      :table-name="subtype as 'guardians' | 'liveries'"
+      @created="onCreated"
     />
   </div>
 </template>

@@ -2,6 +2,14 @@
 import type { EntityTable } from '~/types'
 import { getQualitySoftPillClass } from '~/utils/colors'
 import { rawStarsToJsonbObject } from '~/utils/stars'
+import {
+  getAllChipQualityRows,
+  getChipQualityValues,
+  resolveChipDescriptionParts,
+  formatQualityValueForDb,
+  QUALITY_KEYS,
+  useChips
+} from '~/composables/useChips'
 
 const props = withDefaults(
   defineProps<{
@@ -22,6 +30,8 @@ const emit = defineEmits<{
 const { role } = useProfile()
 const toast = useToast()
 const { updateItem } = useSkills()
+const { submitEdit } = useRevisions()
+const { gearTypes } = useChips()
 
 const editOpen = ref(false)
 const editMode = ref(false)
@@ -37,6 +47,21 @@ const editDescription = ref('')
 const editQuality = ref('')
 const editStars = ref<Record<string, Record<string, string | null>> | null>(null)
 const saving = ref(false)
+
+const chipEditMode = ref(false)
+const editChipValues = ref<{ quality: string; value0: number; value1: number | null }[]>([])
+const editChipBoostType = ref('')
+const editChipValuable = ref(false)
+const editChipEmberOnly = ref(false)
+const editChipGears = ref<string[]>([])
+const savingChip = ref(false)
+
+function parseChipGears(val: string | string[] | null | undefined): string[] {
+  if (val == null) return []
+  if (Array.isArray(val)) return val.filter((s) => s != null && String(s).trim() !== '').map((s) => String(s).trim())
+  if (typeof val !== 'string') return []
+  return val.split(',').map((s) => s.trim()).filter(Boolean)
+}
 
 function enterEditMode() {
   if (!props.item) return
@@ -63,7 +88,7 @@ async function saveEdit() {
   })
   saving.value = false
   if (error) {
-    toast.add({ title: `Update failed: ${error.message}`, color: 'error' })
+    toast.add({ title: `Update failed: ${(error as Error)?.message ?? error ?? 'Unknown error'}`, color: 'error' })
     return
   }
   toast.add({ title: 'Saved', color: 'success' })
@@ -72,12 +97,14 @@ async function saveEdit() {
 }
 
 watch(open, (v) => {
-  if (!v) editMode.value = false
+  if (!v) {
+    editMode.value = false
+    chipEditMode.value = false
+  }
 })
 
 const excludedKeys = new Set([
   'id',
-  'parent_id',
   'submitted_by',
   'created_at',
   'updated_at',
@@ -90,12 +117,41 @@ const excludedKeys = new Set([
   'data_cooldown'
 ])
 
+const chipValueKeys = new Set([
+  'value_common',
+  'value_fine',
+  'value_rare',
+  'value_epic',
+  'value_legendary',
+  'value_supreme',
+  'value_ultimate'
+])
+
 const statFields = computed(() => {
   if (!props.item) return []
+  const exclude = new Set(excludedKeys)
+  if (props.tableName === 'chips') chipValueKeys.forEach((k) => exclude.add(k))
   return Object.entries(props.item)
-    .filter(([key, val]) => !excludedKeys.has(key) && val !== null && val !== undefined)
+    .filter(([key, val]) => !exclude.has(key) && val !== null && val !== undefined)
     .map(([key, val]) => ({ key, label: formatLabel(key), value: String(val) }))
 })
+
+const chipQualityValues = computed(() =>
+  props.item && props.tableName === 'chips' ? getChipQualityValues(props.item as Record<string, unknown>) : []
+)
+
+const chipQualityTable = computed(() =>
+  props.item && props.tableName === 'chips' ? getAllChipQualityRows(props.item as Record<string, unknown>) : []
+)
+
+const chipDescriptionParts = computed(() =>
+  props.item && props.tableName === 'chips'
+    ? resolveChipDescriptionParts(
+        (props.item.description as string) ?? '',
+        props.item as Record<string, unknown>
+      )
+    : []
+)
 
 const starTablesLegacy: EntityTable[] = ['rangers']
 const isStarEntityLegacy = computed(() => starTablesLegacy.includes(props.tableName))
@@ -124,12 +180,52 @@ function onEdited() {
   emit('edited')
 }
 
+function enterChipEditMode() {
+  if (!props.item || props.tableName !== 'chips') return
+  editChipValues.value = getAllChipQualityRows(props.item as Record<string, unknown>)
+  editChipBoostType.value = (props.item.boost_type as string) ?? ''
+  editChipValuable.value = props.item.valuable === true
+  editChipEmberOnly.value = props.item.ember_only === true
+  editChipGears.value = parseChipGears(props.item.compatible_gears)
+  chipEditMode.value = true
+}
+
+function cancelChipEdit() {
+  chipEditMode.value = false
+}
+
+async function saveChipEdit() {
+  if (!props.item?.id || props.tableName !== 'chips') return
+  savingChip.value = true
+  const payload: Record<string, unknown> = {
+    boost_type: editChipBoostType.value?.trim() || null,
+    valuable: editChipValuable.value,
+    ember_only: editChipEmberOnly.value,
+    compatible_gears: editChipGears.value.length > 0 ? editChipGears.value : null
+  }
+  for (const row of editChipValues.value) {
+    const key = QUALITY_KEYS[row.quality]
+    if (!key) continue
+    const v0 = Number(row.value0)
+    const v1 = row.value1 != null && !Number.isNaN(Number(row.value1)) ? Number(row.value1) : null
+    payload[key] = formatQualityValueForDb(Number.isNaN(v0) ? 0 : v0, v1)
+  }
+  const { error } = await submitEdit('chips', props.item as Record<string, unknown>, payload)
+  savingChip.value = false
+  if (error) {
+    toast.add({ title: `Update failed: ${error ?? 'Unknown error'}`, color: 'error' })
+    return
+  }
+  chipEditMode.value = false
+  emit('edited')
+}
+
 const showEdit = computed(
   () =>
-    isOthersTable.value &&
     role.value === 'admin' &&
     !props.readOnly &&
-    !props.hasPending
+    !props.hasPending &&
+    (isOthersTable.value || props.tableName === 'chips')
 )
 </script>
 
@@ -183,7 +279,21 @@ const showEdit = computed(
               {{ item.name ?? '—' }}
             </h2>
             <p v-if="item.description" class="text-sm text-muted mt-1">
+              <template v-if="tableName === 'chips' && chipDescriptionParts.length">
+                <span class="wrap-break-word whitespace-normal">
+                  <template v-for="(part, i) in chipDescriptionParts" :key="i">
+                    <template v-if="part.type === 'text'">{{ part.value }}</template>
+                    <span
+                      v-else
+                    :class="['inline-block px-2 py-0.5 rounded-md border border-default text-xs font-medium align-baseline mx-0.5', getQualitySoftPillClass(part.quality)]"
+                    >
+                      {{ part.value }}
+                    </span>
+                  </template>
+                </span>
+              </template>
               <DescriptionWithSkill
+                v-else
                 :description="item.description as string"
                 :stars="(item.stars ?? null) as any"
               />
@@ -211,6 +321,119 @@ const showEdit = computed(
         <!-- Frames / Guardians / Liveries: JSONB stars (table, skill in description) -->
         <template v-if="hasJsonbStars">
           <StarsTable :stars="(item.stars as any) ?? null" :quality="(item?.quality as string) ?? undefined" />
+        </template>
+
+        <!-- Chips: quality table (7 columns, icon header, value under) -->
+        <template v-else-if="tableName === 'chips' && chipQualityTable.length">
+          <div class="space-y-2 pt-2">
+            <!-- Chip edit: boost, gears, valuable, ember -->
+            <template v-if="chipEditMode">
+              <div class="space-y-3 pb-2">
+                <UFormField label="Boost type">
+                  <UInput
+                    v-model="editChipBoostType"
+                    class="w-full"
+                    placeholder="e.g. HP, DMG, CRIT"
+                  />
+                </UFormField>
+                <UFormField label="Compatible gears">
+                  <USelectMenu
+                    v-model="editChipGears"
+                    :items="gearTypes.map((g) => ({ label: g.name, value: g.name }))"
+                    value-key="value"
+                    placeholder="Select gears"
+                    multiple
+                    class="w-full"
+                  />
+                </UFormField>
+                <div class="flex items-center gap-4">
+                  <label class="flex items-center gap-2 cursor-pointer">
+                    <UCheckbox v-model="editChipValuable" />
+                    <span class="text-sm">Valuable</span>
+                  </label>
+                  <label class="flex items-center gap-2 cursor-pointer">
+                    <UCheckbox v-model="editChipEmberOnly" />
+                    <span class="text-sm">Ember only</span>
+                  </label>
+                </div>
+              </div>
+            </template>
+            <p class="text-sm font-medium text-muted">
+              Quality values
+            </p>
+            <div class="overflow-x-auto">
+              <table class="w-full text-sm border border-default rounded-lg overflow-hidden">
+                <thead>
+                  <tr class="bg-muted/50 border-b border-default">
+                    <th
+                      v-for="row in chipQualityTable"
+                      :key="row.quality"
+                      class="py-2 px-1 text-center font-medium min-w-10"
+                    >
+                      <img
+                        :src="`/ref/chips/${row.quality.toLowerCase()}.webp`"
+                        :alt="row.quality"
+                        class="size-6 object-contain mx-auto"
+                        @error="(e: Event) => (e.target as HTMLImageElement).style.display = 'none'"
+                      >
+                    </th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr v-if="chipEditMode" class="border-b border-default/50">
+                    <td
+                      v-for="(row, idx) in editChipValues"
+                      :key="row.quality"
+                      class="py-1.5 px-1 align-top"
+                    >
+                      <div class="flex flex-col gap-1">
+                        <UInput
+                          v-model.number="editChipValues[idx].value0"
+                          type="number"
+                          size="xs"
+                          class="text-center chip-quality-number"
+                          placeholder="0"
+                        />
+                        <UInput
+                          :model-value="editChipValues[idx].value1 != null && !Number.isNaN(editChipValues[idx].value1) ? editChipValues[idx].value1 : ''"
+                          type="number"
+                          size="xs"
+                          class="text-center chip-quality-number"
+                          placeholder="—"
+                          @update:model-value="(v: string | number) => { editChipValues[idx].value1 = (v === '' || v == null) ? null : Number(v) }"
+                        />
+                      </div>
+                    </td>
+                  </tr>
+                  <tr v-else class="border-b border-default/50">
+                    <td
+                      v-for="row in chipQualityTable"
+                      :key="row.quality"
+                      class="py-2 px-1 text-center"
+                    >
+                      <div class="flex flex-col items-center gap-0.5">
+                        <span
+                          :class="['inline-block px-2 py-0.5 rounded-full text-xs font-medium', getQualitySoftPillClass(row.quality)]"
+                        >
+                          {{ row.value0 }}
+                        </span>
+                        <span
+                          v-if="row.value1 != null"
+                          :class="['inline-block px-2 py-0.5 rounded-full text-xs font-medium', getQualitySoftPillClass(row.quality)]"
+                        >
+                          {{ row.value1 }}
+                        </span>
+                      </div>
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+            <div v-if="chipEditMode" class="flex gap-2 pt-2">
+              <UButton label="Cancel" variant="outline" color="neutral" block @click="cancelChipEdit" />
+              <UButton label="Save" icon="i-lucide-check" block :loading="savingChip" @click="saveChipEdit" />
+            </div>
+          </div>
         </template>
 
         <!-- Legacy star tables (e.g. rangers) with _star1.._star5 columns -->
@@ -250,13 +473,13 @@ const showEdit = computed(
           </div>
         </template>
 
-        <div v-if="showEdit" class="pt-2">
+        <div v-if="showEdit && !chipEditMode" class="pt-2">
           <UButton
             label="Edit"
             icon="i-lucide-pencil"
             block
             variant="soft"
-            @click="enterEditMode"
+            @click="tableName === 'chips' ? enterChipEditMode() : enterEditMode()"
           />
         </div>
         <p v-if="!readOnly && hasPending" class="text-xs text-orange-500 mt-1 text-center">
@@ -275,3 +498,14 @@ const showEdit = computed(
     @edited="onEdited"
   />
 </template>
+
+<style scoped>
+.chip-quality-number :deep(input[type="number"]) {
+  -moz-appearance: textfield;
+}
+.chip-quality-number :deep(input[type="number"]::-webkit-inner-spin-button),
+.chip-quality-number :deep(input[type="number"]::-webkit-outer-spin-button) {
+  -webkit-appearance: none;
+  margin: 0;
+}
+</style>

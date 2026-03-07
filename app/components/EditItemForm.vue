@@ -15,7 +15,7 @@ const emit = defineEmits<{
 const { submitEdit } = useRevisions()
 const submitting = ref(false)
 
-const excludedKeys = new Set(['id', 'parent_id', 'submitted_by', 'created_at', 'updated_at'])
+const excludedKeys = new Set(['id', 'submitted_by', 'created_at', 'updated_at'])
 
 const editableFields = computed(() =>
   Object.entries(props.item)
