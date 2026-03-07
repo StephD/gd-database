@@ -106,19 +106,19 @@ export function resolveChipDescriptionParts(
     const indexStr = m[1] ?? '0'
     const index = parseInt(indexStr, 10)
     if (index === 0) {
-      qualityValues.forEach(({ quality, value0 }) => parts.push({ type: 'pill', quality, value: value0 }))
+      qualityValues.forEach(({ quality, value0 }) => {
+        if (value0 !== 0) parts.push({ type: 'pill', quality, value: value0 })
+      })
     } else if (index === 1) {
       qualityValues.forEach(({ quality, value1 }) => {
-        if (value1 != null) parts.push({ type: 'pill', quality, value: value1 })
+        if (value1 != null && value1 !== 0) parts.push({ type: 'pill', quality, value: value1 })
       })
     } else {
       const qualityVal = CHIP_RARITY_ORDER[index]
-      if (qualityVal == null || typeof qualityVal !== 'string') {
-        parts.push({ type: 'pill', quality: 'Other', value: 0 })
-      } else {
+      if (qualityVal != null && typeof qualityVal === 'string') {
         const row = qualityValues.find((r) => r.quality === qualityVal)
         const val = row ? row.value0 : 0
-        parts.push({ type: 'pill', quality: qualityVal, value: val })
+        if (val !== 0) parts.push({ type: 'pill', quality: qualityVal, value: val })
       }
     }
     lastIndex = re.lastIndex

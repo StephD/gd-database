@@ -4,6 +4,8 @@ import { getTurretTypeClasses, getTurretTypeBorderClass } from '~/utils/colors'
 
 definePageMeta({ layout: 'default' })
 
+const localePath = useLocalePath()
+
 const columns = [
   { accessorKey: 'name', header: $t('column.name') },
   { accessorKey: 'type', header: $t('column.type') },
@@ -76,7 +78,9 @@ const loadingText = computed(() => $t('common.loading') ?? 'Loading…')
         v-if="filteredTurrets.length"
         :data="filteredTurrets"
         :columns="columns"
-        class="hidden md:block"
+        class="hidden md:block cursor-pointer"
+        :meta="{ class: { tr: 'cursor-pointer hover:bg-muted/30' } }"
+        @select="(_e: Event, row: { original: { id: string } }) => navigateTo(localePath(`/db/turrets/${row.original.id}`))"
       >
         <template #name-cell="{ row }">
           <div class="flex items-center gap-3 py-1">
@@ -123,10 +127,11 @@ const loadingText = computed(() => $t('common.loading') ?? 'Loading…')
         v-if="filteredTurrets.length"
         class="md:hidden grid grid-cols-1 gap-3 sm:grid-cols-2"
       >
-        <div
+        <NuxtLink
           v-for="turret in filteredTurrets"
           :key="turret.id"
-          :class="['rounded-xl border border-default bg-default p-4 flex gap-3 border-l-4', getTurretTypeBorderClass(turret.type)]"
+          :to="localePath(`/db/turrets/${turret.id}`)"
+          :class="['rounded-xl border border-default bg-default p-4 flex gap-3 border-l-4 cursor-pointer hover:border-primary/50 transition-colors', getTurretTypeBorderClass(turret.type)]"
         >
           <div class="size-14 rounded-lg bg-elevated flex items-center justify-center overflow-hidden shrink-0">
             <NuxtImg
@@ -162,7 +167,7 @@ const loadingText = computed(() => $t('common.loading') ?? 'Loading…')
               {{ turret.description || 'No description available.' }}
             </p>
           </div>
-        </div>
+        </NuxtLink>
       </div>
 
       <!-- Empty state -->

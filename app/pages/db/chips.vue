@@ -6,7 +6,6 @@ import { getQualitySoftPillClass } from '~/utils/colors'
 import {
   useChips,
   getChipQualities,
-  getChipQualityValues,
   resolveChipDescriptionParts,
   GEAR_ICON_SLUG
 } from '~/composables/useChips'
@@ -134,7 +133,7 @@ const tableColumns = computed<TableColumn<ChipRow>[]>(() => [
       row.original.valuable === true
         ? h('span', { class: 'text-yellow-500 text-lg leading-none', title: 'Valuable' }, '★')
         : h('span', { class: 'inline-block size-4' }),
-    meta: { class: { th: 'w-10', td: 'w-10' } }
+    meta: { class: { th: 'w-8', td: 'w-8' } }
   },
   {
     accessorKey: 'ember_only',
@@ -143,7 +142,7 @@ const tableColumns = computed<TableColumn<ChipRow>[]>(() => [
       row.original.ember_only === true
         ? h('span', { class: 'text-yellow-500 text-lg leading-none', title: 'Ember only' }, '★')
         : h('span', { class: 'inline-block size-4' }),
-    meta: { class: { th: 'w-10', td: 'w-10' } }
+    meta: { class: { th: 'w-8', td: 'w-8' } }
   },
   {
     accessorKey: 'compatible_gears',
@@ -188,7 +187,7 @@ const tableColumns = computed<TableColumn<ChipRow>[]>(() => [
         )
       )
     },
-    meta: { class: { th: 'w-[100px]', td: 'w-[100px]' } }
+    meta: { class: { th: 'w-16', td: 'w-16' } }
   },
   {
     accessorKey: 'description',
@@ -200,10 +199,10 @@ const tableColumns = computed<TableColumn<ChipRow>[]>(() => [
         row.original,
         selectedQualities.value.length > 0 ? selectedQualities.value : undefined
       )
-      if (parts.length === 0) return h('div', { class: 'text-sm text-muted w-full min-w-0 line-clamp-3 break-words' }, '—')
+      if (parts.length === 0) return h('div', { class: 'text-sm text-muted max-w-full break-words whitespace-normal line-clamp-3' }, '—')
       return h(
         'div',
-        { class: 'text-sm text-muted w-full min-w-0 line-clamp-3 break-words' },
+        { class: 'text-sm text-muted max-w-full break-words whitespace-normal line-clamp-3' },
         parts.map((part, i) =>
           part.type === 'text'
             ? part.value
@@ -214,7 +213,7 @@ const tableColumns = computed<TableColumn<ChipRow>[]>(() => [
         )
       )
     },
-    meta: { class: { th: 'w-[260px]', td: 'w-[260px] min-w-0' } }
+    meta: { class: { th: 'w-[260px] max-w-[260px]', td: 'desc-cell w-[260px] max-w-[260px] min-w-0' } }
   }
 ])
 
@@ -470,16 +469,6 @@ const tableMeta = computed(() => ({
               {{ chip.description || '—' }}
             </template>
           </p>
-          <div class="flex flex-wrap gap-1">
-            <template v-for="row in getChipQualityValues(chip as unknown as Record<string, unknown>)" :key="row.quality">
-              <span :class="['inline-block px-2 py-0.5 rounded-full text-xs font-medium', getQualitySoftPillClass(row.quality)]">
-                {{ row.value0 }}
-              </span>
-              <span v-if="row.value1 != null" :class="['inline-block px-2 py-0.5 rounded-full text-xs font-medium', getQualitySoftPillClass(row.quality)]">
-                {{ row.value1 }}
-              </span>
-            </template>
-          </div>
         </button>
       </div>
 
@@ -503,3 +492,11 @@ const tableMeta = computed(() => ({
     />
   </div>
 </template>
+
+<style scoped>
+.desc-cell {
+  word-wrap: break-word;
+  overflow-wrap: break-word;
+  white-space: normal;
+}
+</style>
