@@ -194,7 +194,11 @@ const tableColumns = computed<TableColumn<ChipRow>[]>(() => [
     header: 'Description',
     cell: ({ row }) => {
       const desc = (row.original.description as string) ?? ''
-      const parts = resolveChipDescriptionParts(desc, row.original)
+      const parts = resolveChipDescriptionParts(
+        desc,
+        row.original,
+        selectedQualities.value.length > 0 ? selectedQualities.value : undefined
+      )
       if (parts.length === 0) return h('div', { class: 'text-sm text-muted w-full min-w-0 line-clamp-3 break-words' }, '—')
       return h(
         'div',

@@ -82,17 +82,23 @@ export type ChipDescriptionPart =
   | { type: 'text'; value: string }
   | { type: 'pill'; quality: string; value: number }
 
-/** Splits chip description: {0} = first value pills (value0), {1} = second value pills (value1). {2},{3},... = single tier. */
+/** Splits chip description: {0} = first value pills (value0), {1} = second value pills (value1). {2},{3},... = single tier.
+ * When onlyQualities is provided and non-empty, only pills for those qualities are included (e.g. when filtering by quality). */
 export function resolveChipDescriptionParts(
   description: string | null | undefined,
-  chip: Record<string, unknown>
+  chip: Record<string, unknown>,
+  onlyQualities?: string[]
 ): ChipDescriptionPart[] {
   if (!description || typeof description !== 'string') return []
   const re = /\{(\d+)\}/g
   const parts: ChipDescriptionPart[] = []
   let lastIndex = 0
   let m: RegExpExecArray | null
-  const qualityValues = getChipQualityValues(chip)
+  let qualityValues = getChipQualityValues(chip)
+  if (onlyQualities?.length) {
+    const set = new Set(onlyQualities)
+    qualityValues = qualityValues.filter((r) => set.has(r.quality))
+  }
   while ((m = re.exec(description)) !== null) {
     if (m.index > lastIndex) {
       parts.push({ type: 'text', value: description.slice(lastIndex, m.index) })
@@ -174,7 +180,7 @@ export function useChips() {
   const selectedGears = ref<string[]>([])
   const selectedTurrets = ref<string[]>([])
   const valuableOnly = ref(false)
-  const selectedQualities = ref<string[]>(['Legendary', 'Supreme', 'Ultimate'])
+  const selectedQualities = ref<string[]>(['Epic','Legendary', 'Supreme', 'Ultimate'])
   const selectedBoostTypes = ref<string[]>([])
 
   const filteredChips = computed<Chip[]>(() => {
