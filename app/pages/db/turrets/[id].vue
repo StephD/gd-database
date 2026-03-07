@@ -99,7 +99,7 @@ const statRows = computed(() => {
 </script>
 
 <template>
-  <div class="max-w-4xl mx-auto px-4 py-6">
+  <div class="max-w-6xl mx-auto px-4 py-6">
     <!-- Back -->
     <NuxtLink
       :to="localePath('/db/turrets')"
